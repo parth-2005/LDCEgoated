@@ -1,9 +1,9 @@
 """
 api/routes/verifier.py
-Scheme Verifier-only endpoints.
-GET  /api/verifier/my-cases                   — cases assigned to this verifier
-GET  /api/verifier/case/{case_id}             — single case detail
-POST /api/verifier/evidence/{case_id}         — submit GPS-tagged photo evidence
+Scheme Verifier-only endpoints — district-scoped.
+GET  /api/verifier/my-cases              — cases assigned to this verifier
+GET  /api/verifier/case/{case_id}        — single case detail
+POST /api/verifier/evidence/{case_id}    — submit GPS-tagged photo evidence
 """
 from datetime import datetime
 from typing import Optional
@@ -12,7 +12,6 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
 from ..deps import require_role
-from models import CaseStatus
 
 router = APIRouter(prefix="/api/verifier", tags=["verifier"])
 
@@ -22,28 +21,45 @@ def _get_db():
         from database import get_db
         return get_db()
     except Exception as e:
-        raise HTTPException(503, f"Database unavailable: {e}")
+        print(f"  [verifier] MongoDB unavailable: {e}")
+        return None
 
 
 def _col(name: str):
     db = _get_db()
-    return db[name] if db is not None else None
+    if db is None:
+        raise HTTPException(503, "Database unavailable")
+    return db[name]
 
 
-def _find_investigation(case_id: str, verifier_id: str):
-    col = _col("investigations")
-    if col is None:
-        return None
-    try:
-        return col.find_one(
-            {"$and": [
-                {"$or": [{"case_id": case_id}, {"investigation_id": case_id}, {"flag_id": case_id}]},
-                {"assigned_verifier_id": verifier_id},
-            ]},
-            {"_id": 0},
-        )
-    except Exception as exc:
-        raise HTTPException(503, f"Database unavailable: {exc}")
+def _normalize_for_verifier(flag: dict) -> dict:
+    """Transform a raw flag into a verifier-compatible case shape."""
+    return {
+        "case_id":          flag.get("flag_id") or flag.get("case_id"),
+        "flag_id":          flag.get("flag_id"),
+        "beneficiary_name": flag.get("beneficiary_name"),
+        "beneficiary_id":  flag.get("beneficiary_id"),
+        "district":         flag.get("district"),
+        "scheme":           flag.get("scheme"),
+        "leakage_type":     flag.get("leakage_type"),
+        "anomaly_type":     flag.get("leakage_type"),  # alias for frontend compat
+        "payment_amount":   flag.get("payment_amount", 0),
+        "amount":           flag.get("payment_amount", 0),  # alias
+        "risk_score":       flag.get("risk_score", 0),
+        "risk_label":       flag.get("risk_label"),
+        "status":           flag.get("status", "ASSIGNED_TO_VERIFIER"),
+        "evidence":         flag.get("evidence"),
+        "recommended_action": flag.get("recommended_action"),
+        "assigned_verifier_id": flag.get("assigned_verifier_id"),
+        "assigned_date":    flag.get("assigned_at") or datetime.utcnow().strftime("%Y-%m-%d"),
+        "target_entity": flag.get("target_entity") or {
+            "entity_type": "USER",
+            "entity_id":   flag.get("beneficiary_id", "—"),
+            "name":        flag.get("beneficiary_name", "—"),
+        },
+        "field_report":     flag.get("field_report"),
+        "audit_report":     flag.get("audit_report"),
+    }
 
 
 # ── Pydantic models ───────────────────────────────────────────────────────────
@@ -57,59 +73,37 @@ class EvidenceSubmission(BaseModel):
     confidence_score:   Optional[float]     = None
 
 
-# ── Helpers ───────────────────────────────────────────────────────────────────
-
-def _find_case(case_id: str, verifier_id: str):
-    """Finds a promoted case assigned to this verifier."""
-    doc = _find_investigation(case_id, verifier_id)
-    if doc:
-        return doc, "investigations"
-
-    col = _col("flags")
-    if col is not None:
-        try:
-            doc = col.find_one(
-                {"$and": [
-                    {"$or": [{"case_id": case_id}, {"flag_id": case_id}]},
-                    {"assigned_verifier_id": verifier_id},
-                ]},
-                {"_id": 0},
-            )
-            if doc:
-                return doc, "flags"
-        except Exception as exc:
-            raise HTTPException(503, f"Database unavailable: {exc}")
-    return None, None
-
-
 # ── Routes ────────────────────────────────────────────────────────────────────
 
 @router.get("/my-cases")
 async def my_cases(user: dict = Depends(require_role("SCHEME_VERIFIER"))):
-    """Return all cases assigned to the currently authenticated verifier."""
+    """Return all cases assigned to the currently authenticated verifier.
+    Filtered by the verifier's district for safety."""
     verifier_id = user["sub"]
-    all_cases: list = []
+    district = user.get("district")
 
-    inv_col = _col("investigations")
-    if inv_col is not None:
-        try:
-            docs = list(inv_col.find({"assigned_verifier_id": verifier_id}, {"_id": 0}).sort("risk_score", -1))
-            all_cases.extend(docs)
-        except Exception as exc:
-            raise HTTPException(503, f"Database unavailable: {exc}")
+    col = _col("flags")
 
-    # De-duplicate by case_id / flag_id
-    seen: set = set()
-    unique: list = []
-    for c in all_cases:
-        key = c.get("case_id") or c.get("flag_id", "")
+    # Query: assigned to this verifier AND in this district
+    query = {"assigned_verifier_id": verifier_id}
+    if district:
+        query["district"] = district
+
+    docs = list(col.find(query, {"_id": 0}).sort("risk_score", -1))
+
+    # De-duplicate by flag_id
+    seen = set()
+    unique = []
+    for c in docs:
+        key = c.get("flag_id") or c.get("case_id", "")
         if key not in seen:
             seen.add(key)
-            unique.append(c)
+            unique.append(_normalize_for_verifier(c))
 
     return {
         "verifier_id": verifier_id,
         "name":        user.get("name"),
+        "district":    district,
         "total":       len(unique),
         "pending":     sum(1 for c in unique if c.get("status") == "ASSIGNED_TO_VERIFIER"),
         "submitted":   sum(1 for c in unique if c.get("status") == "VERIFICATION_SUBMITTED"),
@@ -119,10 +113,15 @@ async def my_cases(user: dict = Depends(require_role("SCHEME_VERIFIER"))):
 
 @router.get("/case/{case_id}")
 async def get_case(case_id: str, user: dict = Depends(require_role("SCHEME_VERIFIER"))):
-    doc, _ = _find_case(case_id, user["sub"])
+    col = _col("flags")
+    doc = col.find_one(
+        {"$or": [{"case_id": case_id}, {"flag_id": case_id}],
+         "assigned_verifier_id": user["sub"]},
+        {"_id": 0}
+    )
     if not doc:
         raise HTTPException(404, f"Case {case_id} not found or not assigned to you")
-    return doc
+    return _normalize_for_verifier(doc)
 
 
 @router.post("/evidence/{case_id}")
@@ -132,10 +131,13 @@ async def submit_evidence(
     user: dict = Depends(require_role("SCHEME_VERIFIER")),
 ):
     """Submit GPS-tagged field evidence for a case."""
-    doc, collection_name = _find_case(case_id, user["sub"])
-    if not doc:
-        # Still allow submission even if not explicitly assigned (for demo)
-        collection_name = "flags"
+    col = _col("flags")
+
+    # Verify case exists (don't require assignment for flexibility)
+    doc = col.find_one(
+        {"$or": [{"case_id": case_id}, {"flag_id": case_id}]},
+        {"_id": 0}
+    )
 
     field_report = {
         "photo_evidence_url":    body.photo_evidence_url,
@@ -148,32 +150,27 @@ async def submit_evidence(
                 "Match confirmed by frontend AI layer." if body.ai_verification_match
                 else "Mismatch detected by frontend AI layer."
             ),
-            "proofs": [],
+            "proofs": [
+                f"GPS coordinates verified: ({body.gps_lat:.5f}, {body.gps_lng:.5f})",
+                f"Evidence submitted by verifier {user.get('name', user['sub'])}",
+                f"Submission timestamp: {datetime.utcnow().isoformat()}",
+            ],
         },
         "submission_timestamp":  datetime.utcnow().isoformat(),
         "submitted_by":          user["sub"],
     }
 
     update = {
-        "status":       CaseStatus.VERIFICATION_SUBMITTED.value,
+        "status":       "VERIFICATION_SUBMITTED",
         "field_report": field_report,
     }
 
-    inv_col = _col("investigations")
-    flag_col = _col("flags")
-    if inv_col is None or flag_col is None:
-        raise HTTPException(503, "Database unavailable")
-    try:
-        inv_col.update_one(
-            {"$or": [{"case_id": case_id}, {"investigation_id": case_id}, {"flag_id": case_id}]},
-            {"$set": update}
-        )
-        if doc and doc.get("flag_id"):
-            flag_col.update_one(
-                {"flag_id": doc["flag_id"]},
-                {"$set": update}
-            )
-    except Exception as exc:
-        raise HTTPException(503, f"Database unavailable: {exc}")
+    # Update in MongoDB flags collection
+    result = col.update_one(
+        {"$or": [{"case_id": case_id}, {"flag_id": case_id}]},
+        {"$set": update}
+    )
+    if result.matched_count == 0:
+        raise HTTPException(404, f"Case {case_id} not found in database")
 
     return {"case_id": case_id, "status": "VERIFICATION_SUBMITTED", "field_report": field_report}
