@@ -24,6 +24,11 @@ try:
 except Exception:  # pragma: no cover
     generate_report = None
 
+try:
+    from ai_layer.endpoints import router as ai_router
+except Exception:  # pragma: no cover
+    ai_router = None
+
 app = FastAPI(title="EduGuard DBT API")
 
 app.add_middleware(
@@ -32,6 +37,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+if ai_router is not None:
+    app.include_router(ai_router)
 
 _flag_store = {}
 
@@ -60,10 +68,8 @@ async def run_analysis(body: dict):
     for raw in raw_flags:
         score, label, action = compute_risk_score(raw)
 
-        try:
-            evidence = generate_evidence(raw) if generate_evidence else _fallback_evidence(raw)
-        except Exception:
-            evidence = _fallback_evidence(raw)
+        # Use fast template evidence for bulk scan (AI evidence is on-demand via /api/flag/{id}/evidence)
+        evidence = _fallback_evidence(raw)
 
         enriched_flags.append(
             {
@@ -94,6 +100,24 @@ async def run_analysis(body: dict):
         "processing_time_seconds": round(elapsed, 2),
         "flags": enriched_flags,
     }
+
+
+@app.post("/api/flag/{flag_id}/evidence")
+async def generate_flag_evidence(flag_id: str):
+    """Generate AI-powered evidence for a single flag (on-demand)."""
+    if flag_id not in _flag_store:
+        raise HTTPException(404, "Flag not found")
+
+    flag = _flag_store[flag_id]
+    try:
+        if generate_evidence:
+            evidence = generate_evidence(flag)
+            flag["evidence"] = evidence
+            return {"flag_id": flag_id, "evidence": evidence, "source": "ai"}
+    except Exception:
+        pass
+
+    return {"flag_id": flag_id, "evidence": flag["evidence"], "source": "template"}
 
 
 @app.get("/api/flags")

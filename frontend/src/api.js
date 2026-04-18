@@ -9,4 +9,5 @@ export const api = {
   updateFlagStatus: (id, status) => axios.patch(`${BASE}/api/flag/${id}/status`, { status }),
   getStats: () => axios.get(`${BASE}/api/stats`),
   getReport: () => axios.get(`${BASE}/api/report`),
+  generateEvidence: (id) => axios.post(`${BASE}/api/flag/${id}/evidence`),
 }
