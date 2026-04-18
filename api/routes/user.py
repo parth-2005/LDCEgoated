@@ -26,8 +26,7 @@ def _get_db():
         from database import get_db
         return get_db()
     except Exception as e:
-        print(f"  [user] MongoDB unavailable: {e}")
-        return None
+        raise HTTPException(status_code=503, detail=f"Database unavailable: {e}")
 
 
 def _col(name: str):
