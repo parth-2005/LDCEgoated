@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts'
 import { RiskBadge, LeakageBadge } from '../components/RiskBadge'
 import { Play, RefreshCw, FileText } from 'lucide-react'
@@ -6,9 +7,10 @@ import { api } from '../api'
 
 const COLORS = { DECEASED: '#E63946', DUPLICATE: '#F5A623', UNDRAWN: '#EAB308', CROSS_SCHEME: '#abc9f1' }
 
-export default function Dashboard({ onOpenCase, analysisData, setAnalysisData }) {
+export default function Dashboard({ analysisData, setAnalysisData }) {
   const [loading, setLoading] = useState(false)
   const [stats, setStats] = useState(null)
+  const navigate = useNavigate()
 
   const runAnalysis = async () => {
     setLoading(true)
@@ -93,7 +95,7 @@ export default function Dashboard({ onOpenCase, analysisData, setAnalysisData })
                   </div>
                   <div className="flex items-center gap-6">
                     <span className="text-lg font-mono font-medium text-risk-critical">₹{flag.payment_amount?.toLocaleString('en-IN')}</span>
-                    <button onClick={() => onOpenCase(flag.flag_id)} className="text-sm font-sans font-semibold text-primary-override hover:text-blue-700 bg-white shadow-sm border border-gray-100 px-3 py-1.5 rounded-md transition-colors">Review →</button>
+                    <button onClick={() => navigate(`/dfo/case/${flag.flag_id}`)} className="text-sm font-sans font-semibold text-primary-override hover:text-blue-700 bg-white shadow-sm border border-gray-100 px-3 py-1.5 rounded-md transition-colors">Review →</button>
                   </div>
                 </div>
               ))}

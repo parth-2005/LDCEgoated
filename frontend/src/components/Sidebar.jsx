@@ -66,63 +66,63 @@ const ACTIVE_ACCENT = {
   USER: 'border-gray-400 text-white',
 }
 
-export default function Sidebar({ activePage, onNavigate, role, onLogout }) {
-  const navItems = NAV_BY_ROLE[role] || DFO_NAV
-  const accentDot = ROLE_ACCENT[role] || 'bg-blue-500'
-  const sidebarBg = SIDEBAR_BG[role] || 'bg-shell'
-  const activeClass = ACTIVE_ACCENT[role] || 'border-blue-400 text-white'
+export default function Sidebar({ role, onLogout }) {
+  const location = useLocation()
+  const config = ROLE_CONFIG[role] || { title: 'Portal', items: [] }
 
   return (
-    <aside className={`w-64 ${sidebarBg} text-text-inverse flex flex-col shadow-2xl z-10 relative`}>
+    <aside className="w-64 bg-shell text-text-inverse flex flex-col shadow-2xl z-10 relative">
       {/* Header */}
       <div className="p-5 pt-8">
         <div className="flex items-center gap-3 mb-2">
           <Shield className="text-blue-400" size={26} strokeWidth={2.5} />
-          <span className="font-bold text-xl tracking-tight font-sans">EduGuard</span>
+          <span className="font-bold text-2xl tracking-tight font-sans">EduGuard</span>
         </div>
-        <p className="text-xs text-white/50 leading-relaxed font-data">
-          Government of Gujarat<br />DBT Leakage Detection
+        <p className="text-xs text-white/70 leading-relaxed font-data">
+          Government of Gujarat<br />
+          DBT Leakage Detection
         </p>
       </div>
 
-      {/* Role badge */}
-      <div className="mx-5 mt-2 mb-4 px-3 py-2 bg-white/5 border border-white/10 rounded-md flex items-center gap-2">
-        <div className={`w-2 h-2 rounded-full ${accentDot} flex-shrink-0`} />
-        <span className="text-xs text-white/90 font-mono truncate">{ROLE_LABELS[role]}</span>
+      {/* Role Badge */}
+      <div className="mx-5 mt-4 mb-4 px-3 py-2 bg-white/5 border border-white/10 text-xs text-white/90 font-mono text-center uppercase tracking-wider">
+        {config.title}
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 px-3 mt-2 space-y-0.5">
-        {navItems.map(item => {
+      <nav className="flex-1 px-3 mt-4 space-y-1">
+        {config.items.map(item => {
           const Icon = item.icon
-          const active = activePage === item.id
+          const active = location.pathname === item.path || location.pathname.startsWith(item.path + '/')
           return (
-            <button
-              key={item.id}
-              onClick={() => onNavigate(item.id)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 text-sm transition-all rounded-md font-sans
+            <Link
+              key={item.path}
+              to={item.path}
+              className={`w-full flex items-center gap-3 px-3 py-3 text-sm transition-all rounded-sm font-sans
                 ${active
-                  ? `bg-white/10 ${activeClass} border-l-2`
-                  : 'text-white/55 hover:bg-white/5 hover:text-white border-l-2 border-transparent'
+                  ? 'bg-workspace/10 text-white backdrop-blur-xl border-l-2 border-blue-400'
+                  : 'text-white/60 hover:bg-white/5 hover:text-white border-l-2 border-transparent'
                 }`}
             >
-              <Icon size={17} strokeWidth={active ? 2.5 : 2} />
-              <span className={active ? 'font-semibold' : 'font-medium'}>{item.label}</span>
-            </button>
+              <Icon size={18} strokeWidth={active ? 2.5 : 2} />
+              <span className={active ? "font-semibold" : "font-medium"}>{item.label}</span>
+            </Link>
           )
         })}
       </nav>
 
       {/* Footer */}
-      <div className="p-4 border-t border-white/10">
-        <button
+      <div className="p-5 space-y-4 text-xs text-white/40 font-data border-t border-white/10">
+        <button 
           onClick={onLogout}
-          className="w-full flex items-center gap-2 px-3 py-2 text-xs text-white/40 hover:text-white/70 hover:bg-white/5 rounded-md transition-all font-data"
+          className="w-full flex items-center gap-2 px-3 py-2 text-white/80 hover:text-white hover:bg-white/10 rounded transition-colors"
         >
-          <LogOut size={14} />
-          Sign out
+          <LogOut size={16} /> Logout
         </button>
-        <p className="text-[10px] text-white/25 font-data mt-2 px-3">AY 2024–25 · System Ready</p>
+        <div>
+          Academic Year 2024–25<br />
+          System Ready
+        </div>
       </div>
     </aside>
   )
