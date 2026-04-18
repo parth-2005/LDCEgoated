@@ -35,7 +35,7 @@ export default function AuditReport() {
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-3xl font-bold font-sans text-text-primary tracking-tight">System Audit Report</h1>
         <div className="flex gap-3">
-          <button onClick={handleDownload} className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded text-sm font-semibold text-text-primary hover:bg-gray-50 transition-colors shadow-sm">
+          <button onClick={handleDownload} className="flex items-center gap-2 px-4 py-2 bg-surface-lowest border border-border-subtle rounded text-sm font-semibold text-text-primary hover:bg-surface-low transition-colors shadow-sm">
             <Download size={16} /> Export TXT
           </button>
           <button onClick={handlePrint} className="flex items-center gap-2 px-4 py-2 bg-primary-override text-white rounded text-sm font-semibold hover:bg-blue-900 transition-colors shadow-sm">
@@ -44,7 +44,7 @@ export default function AuditReport() {
         </div>
       </div>
       
-      <div className="bg-surface-lowest p-10 rounded-sm shadow-md border border-gray-200 min-h-[800px]">
+      <div className="bg-surface-lowest p-10 rounded-sm shadow-md border border-border-subtle min-h-[800px]">
         <pre className="font-mono text-sm text-text-primary whitespace-pre-wrap leading-loose">
           {report}
         </pre>

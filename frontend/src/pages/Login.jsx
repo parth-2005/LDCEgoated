@@ -50,8 +50,8 @@ const ROLES = [
     subtitle: 'KYC compliance, scheme registration & tracking',
     icon: Building2,
     accent: 'from-gray-700 to-gray-600',
-    border: 'border-gray-500',
-    badge: 'bg-gray-100 text-gray-700',
+    border: 'border-border-subtle',
+    badge: 'bg-surface-low text-text-secondary',
     jurisdiction: 'Sanand, Ahmedabad',
     demo_email: 'user@eduguard.in',
   },
@@ -164,7 +164,7 @@ export default function Login({ onLogin }) {
                   className={`w-full flex items-center gap-4 p-3.5 rounded-lg border-2 text-left transition-all ${
                     active
                       ? `border-primary-override bg-blue-50 shadow-sm`
-                      : 'border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50'
+                      : 'border-border-subtle bg-surface-lowest hover:border-border-subtle hover:bg-surface-low'
                   }`}
                 >
                   <div className={`w-9 h-9 rounded-lg bg-gradient-to-br ${r.accent} flex items-center justify-center flex-shrink-0`}>
@@ -181,7 +181,7 @@ export default function Login({ onLogin }) {
           </div>
 
           {/* Auth form */}
-          <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-4">
+          <form onSubmit={handleSubmit} className="bg-surface-lowest rounded-xl shadow-sm border border-border-subtle p-6 space-y-4">
             <div className="flex items-center gap-2 mb-2">
               <div className={`w-2 h-2 rounded-full bg-gradient-to-r ${role.accent}`} />
               <span className="text-xs font-bold text-text-secondary uppercase tracking-widest font-data">{role.title}</span>
@@ -213,9 +213,8 @@ export default function Login({ onLogin }) {
                   type="password"
                   value={password}
                   onChange={e => { setPassword(e.target.value); setError('') }}
-                  placeholder="••••••••"
-                  className="w-full pl-9 pr-4 py-2.5 bg-surface border border-gray-200 text-sm font-mono text-text-primary rounded-lg outline-none focus:ring-2 focus:ring-primary-override/30 focus:border-primary-override transition-all"
-                  required
+                  placeholder="Enter key (or leave blank)"
+                  className="w-full pl-9 pr-4 py-2.5 bg-surface border border-border-subtle text-sm font-mono text-text-primary rounded-lg outline-none focus:ring-2 focus:ring-primary-override/30 focus:border-primary-override transition-all"
                 />
               </div>
             </div>

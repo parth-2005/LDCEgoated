@@ -47,14 +47,14 @@ export default function FlaggedInstitutions() {
       {/* Grid of flagged institutions */}
       <div className="grid grid-cols-1 gap-4">
         {flagged.map(inst => (
-          <div key={inst.institution_id} className={`bg-white rounded-xl overflow-hidden shadow-sm ${RISK_BG(inst.risk_profile.risk_score)}`}>
+          <div key={inst.institution_id} className={`bg-surface-lowest rounded-xl overflow-hidden shadow-sm ${RISK_BG(inst.risk_profile.risk_score)}`}>
             <div className="px-6 py-5">
               <div className="flex items-start justify-between gap-4">
                 {/* Left section */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
                     <span className="text-xs font-bold text-text-secondary font-mono">{inst.institution_id}</span>
-                    <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">{inst.type.replace('_', ' ')}</span>
+                    <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-surface-low text-text-secondary">{inst.type.replace('_', ' ')}</span>
                   </div>
                   <h3 className="text-lg font-bold text-text-primary font-sans">{inst.name}</h3>
                   <p className="text-sm text-text-secondary font-data mt-0.5">{inst.taluka}, Ahmedabad · {inst.beneficiary_count} beneficiaries</p>
@@ -90,7 +90,7 @@ export default function FlaggedInstitutions() {
               </div>
 
               {/* Actions */}
-              <div className="flex items-center gap-3 mt-4 pt-4 border-t border-gray-100">
+              <div className="flex items-center gap-3 mt-4 pt-4 border-t border-border-subtle">
                 <button
                   onClick={() => setAssignModal(inst)}
                   className="flex items-center gap-2 px-4 py-2 bg-primary-override text-white text-xs font-bold rounded-lg hover:bg-blue-900 transition-all"
@@ -104,7 +104,7 @@ export default function FlaggedInstitutions() {
                   className={`flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-lg border transition-all ${
                     referred.has(inst.institution_id)
                       ? 'border-emerald-200 bg-emerald-50 text-emerald-600 cursor-not-allowed'
-                      : 'border-gray-200 text-text-secondary hover:border-gray-300 hover:bg-gray-50'
+                      : 'border-border-subtle text-text-secondary hover:border-border-subtle hover:bg-surface-low'
                   }`}
                 >
                   <ExternalLink size={13} />

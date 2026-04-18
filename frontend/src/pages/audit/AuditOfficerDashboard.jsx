@@ -30,7 +30,7 @@ export default function AuditOfficerDashboard() {
 
   return (
     <div className="p-8 max-w-6xl mx-auto font-sans">
-      <div className="flex justify-between items-center mb-8 border-b border-gray-200 pb-4">
+      <div className="flex justify-between items-center mb-8 border-b border-border-subtle pb-4">
         <div>
           <h1 className="text-3xl font-bold text-text-primary tracking-tight">Audit Officer Dashboard</h1>
           <p className="text-sm font-data text-text-secondary mt-1">Review scheme verifier reports and forward to DFO</p>
@@ -50,7 +50,7 @@ export default function AuditOfficerDashboard() {
           </h2>
           
           {cases.filter(c => c.status === 'VERIFICATION_SUBMITTED').map(c => (
-            <div key={c.case_id} className="bg-surface-lowest p-5 rounded-sm shadow-sm border border-gray-200 flex justify-between items-center hover:shadow-md transition-shadow">
+            <div key={c.case_id} className="bg-surface-lowest p-5 rounded-sm shadow-sm border border-border-subtle flex justify-between items-center hover:shadow-md transition-shadow">
               <div>
                 <span className="text-xs font-mono bg-blue-100 text-blue-800 px-2 py-1 rounded mb-2 inline-block">
                   {c.case_id}
@@ -58,7 +58,7 @@ export default function AuditOfficerDashboard() {
                 <h3 className="text-sm font-bold text-text-primary">Entity: {c.target_entity.entity_id}</h3>
                 <p className="text-xs text-text-secondary mt-1">Anomaly Type: {c.anomaly_type}</p>
                 <div className="flex items-center gap-4 mt-3 text-xs font-data">
-                  <span className="flex items-center gap-1 text-gray-500"><MapPin size={12} /> GPS Tagged</span>
+                  <span className="flex items-center gap-1 text-text-secondary"><MapPin size={12} /> GPS Tagged</span>
                   <span className={`flex items-center gap-1 ${c.field_report.ai_verification_match ? 'text-green-600' : 'text-red-600'}`}>
                     <BrainCircuit size={12} /> AI Match: {c.field_report.ai_verification_match ? 'Yes' : 'No'}
                   </span>
@@ -74,7 +74,7 @@ export default function AuditOfficerDashboard() {
           ))}
 
           {cases.filter(c => c.status === 'VERIFICATION_SUBMITTED').length === 0 && (
-            <div className="p-8 text-center text-text-secondary bg-surface-lowest border border-gray-200 rounded-sm">
+            <div className="p-8 text-center text-text-secondary bg-surface-lowest border border-border-subtle rounded-sm">
               No pending reports from scheme verifiers.
             </div>
           )}
@@ -104,9 +104,9 @@ export default function AuditOfficerDashboard() {
       {selectedCase && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-surface-lowest rounded-sm w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-gray-200 flex justify-between items-center">
+            <div className="p-6 border-b border-border-subtle flex justify-between items-center">
               <h3 className="text-xl font-bold text-text-primary">Review Report: {selectedCase.case_id}</h3>
-              <button onClick={() => setSelectedCase(null)} className="text-gray-400 hover:text-gray-600">
+              <button onClick={() => setSelectedCase(null)} className="text-text-secondary hover:text-text-secondary">
                 <XCircle size={24} />
               </button>
             </div>
@@ -115,7 +115,7 @@ export default function AuditOfficerDashboard() {
               <div className="grid grid-cols-2 gap-6">
                 <div>
                   <h4 className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-2">Field Evidence</h4>
-                  <div className="bg-gray-100 rounded-sm overflow-hidden border border-gray-200 aspect-video relative">
+                  <div className="bg-surface-low rounded-sm overflow-hidden border border-border-subtle aspect-video relative">
                     <img src={selectedCase.field_report.photo_evidence_url} alt="Field Evidence" className="w-full h-full object-cover" />
                     <div className="absolute bottom-2 right-2 bg-black/70 text-white text-[10px] px-2 py-1 rounded flex flex-col items-end">
                       <span>Lat: {selectedCase.field_report.gps_coordinates.lat}</span>
@@ -127,7 +127,7 @@ export default function AuditOfficerDashboard() {
                 <div className="space-y-4">
                   <div>
                     <h4 className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-1">Verifier Notes</h4>
-                    <p className="text-sm text-text-primary bg-surface p-3 rounded-sm border border-gray-200">
+                    <p className="text-sm text-text-primary bg-surface p-3 rounded-sm border border-border-subtle">
                       {selectedCase.field_report.verifier_notes}
                     </p>
                   </div>
@@ -138,7 +138,7 @@ export default function AuditOfficerDashboard() {
                       <div className={`flex items-center gap-2 text-sm font-bold mb-3 ${selectedCase.field_report.ai_verification_match ? 'text-green-700' : 'text-red-700'}`}>
                         <BrainCircuit size={18} />
                         {selectedCase.field_report.ai_verification_match ? 'Match Confirmed' : 'Mismatch Detected'}
-                        <span className="ml-auto text-xs font-mono bg-white px-2 py-1 rounded opacity-80 border border-current">
+                        <span className="ml-auto text-xs font-mono bg-surface-lowest px-2 py-1 rounded opacity-80 border border-current">
                           Confidence: {selectedCase.field_report.ai_analysis?.confidence_score}%
                         </span>
                       </div>
@@ -171,7 +171,7 @@ export default function AuditOfficerDashboard() {
                 </div>
               </div>
 
-              <div className="border-t border-gray-200 pt-6">
+              <div className="border-t border-border-subtle pt-6">
                 <h4 className="text-sm font-bold text-text-primary mb-4">Audit Decision</h4>
                 <div className="flex gap-4">
                   <button 

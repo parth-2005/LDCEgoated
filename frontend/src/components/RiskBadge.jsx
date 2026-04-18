@@ -4,7 +4,7 @@ export function RiskBadge({ label }) {
     HIGH: 'bg-risk-high text-white',
     MEDIUM: 'bg-risk-medium text-black',
     LOW: 'bg-risk-low text-white',
-  }[label] || 'bg-gray-200 text-gray-800'
+  }[label] || 'bg-surface-low text-text-primary'
 
   return (
     <span className={`px-3 py-1 text-xs font-sans font-bold uppercase tracking-wider rounded-full ${cfg}`}>
@@ -19,7 +19,7 @@ export function LeakageBadge({ type }) {
     DUPLICATE: { label: 'Duplicate Identity', cls: 'bg-leakage-duplicate text-black' },
     UNDRAWN: { label: 'Undrawn Funds', cls: 'bg-leakage-undrawn text-black' },
     CROSS_SCHEME: { label: 'Cross-Scheme Stacking', cls: 'bg-leakage-cross text-black' },
-  }[type] || { label: type, cls: 'bg-gray-200 text-gray-800' }
+  }[type] || { label: type, cls: 'bg-surface-low text-text-primary' }
 
   return (
     <span className={`px-3 py-1 text-xs font-sans font-semibold rounded-full ${cfg.cls}`}>

@@ -69,7 +69,7 @@ export default function InvestigationQueue() {
                   <td className="p-4">
                     <div className="flex flex-col gap-1">
                       <span className="text-xs font-bold font-sans">{flag.risk_score}/100</span>
-                      <div className="w-[100px] bg-gray-200 h-1.5 rounded-full overflow-hidden">
+                      <div className="w-[100px] bg-surface-low h-1.5 rounded-full overflow-hidden">
                         <div 
                           className={`h-full ${getRiskColor(flag.risk_label)}`} 
                           style={{ width: `${flag.risk_score}%` }} 
@@ -81,7 +81,7 @@ export default function InvestigationQueue() {
                     <select 
                       value={flag.status || 'OPEN'} 
                       onChange={(e) => handleStatusChange(flag.flag_id, e.target.value)}
-                      className="bg-white border border-gray-300 text-text-primary text-xs rounded p-1 font-sans font-medium outline-none focus:ring-2 focus:ring-primary-override"
+                      className="bg-surface-lowest border border-border-subtle text-text-primary text-xs rounded p-1 font-sans font-medium outline-none focus:ring-2 focus:ring-primary-override"
                     >
                       <option value="OPEN">OPEN</option>
                       <option value="ASSIGNED">ASSIGNED</option>

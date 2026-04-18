@@ -134,12 +134,7 @@ export default function Dashboard({ onOpenCase, analysisData, setAnalysisData })
                   </div>
                   <div className="flex items-center gap-6">
                     <span className="text-lg font-mono font-medium text-risk-critical">₹{flag.payment_amount?.toLocaleString('en-IN')}</span>
-                    <button
-                      onClick={() => onOpenCase && onOpenCase(flag.flag_id)}
-                      className="text-sm font-sans font-semibold text-primary-override hover:text-blue-700 bg-white shadow-sm border border-gray-100 px-3 py-1.5 rounded-md transition-colors"
-                    >
-                      Review →
-                    </button>
+                    <button onClick={() => navigate(`/dfo/case/${flag.flag_id}`)} className="text-sm font-sans font-semibold text-primary-override hover:text-blue-700 bg-surface-lowest shadow-sm border border-border-subtle px-3 py-1.5 rounded-md transition-colors">Review →</button>
                   </div>
                 </div>
               ))}
@@ -152,8 +147,8 @@ export default function Dashboard({ onOpenCase, analysisData, setAnalysisData })
       )}
 
       {!analysisData && !loading && (
-        <div className="flex flex-col items-center justify-center h-96 bg-surface-lowest rounded-lg border border-dashed border-gray-300 text-text-secondary mt-4">
-          <FileText size={48} className="text-gray-300 mb-4" />
+        <div className="flex flex-col items-center justify-center h-96 bg-surface-lowest rounded-lg border border-dashed border-border-subtle text-text-secondary mt-4">
+          <FileText size={48} className="text-text-secondary/70 mb-4" />
           <p className="text-xl font-sans font-bold text-text-primary mb-2">Workspace Empty</p>
           <p className="text-sm font-data">Initialize the intelligence ledger by executing a data scan.</p>
           <p className="text-xs font-data text-text-secondary/50 mt-2">Analysis takes ~30–60 seconds to scan 10,000+ records</p>

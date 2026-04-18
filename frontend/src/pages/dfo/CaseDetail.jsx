@@ -75,7 +75,7 @@ export default function CaseDetail({ flagId }) {
             </div>
           </div>
 
-          <div className="bg-white border border-gray-300 rounded-sm p-6 shadow-[inset_0_0_20px_rgba(0,0,0,0.02)]">
+          <div className="bg-surface-lowest border border-border-subtle rounded-sm p-6 shadow-[inset_0_0_20px_rgba(0,0,0,0.02)]">
             <div className="flex items-center justify-between mb-3">
               <span className="text-xs font-bold uppercase tracking-widest text-text-secondary font-sans">Evidence Record</span>
               <button
@@ -140,7 +140,7 @@ export default function CaseDetail({ flagId }) {
             <select 
               value={flag.status || 'OPEN'} 
               onChange={(e) => handleStatusChange(e.target.value)}
-              className="w-full bg-white border border-gray-300 text-text-primary text-sm rounded p-2.5 mb-4 font-sans font-semibold outline-none focus:ring-2 focus:ring-primary-override"
+              className="w-full bg-surface-lowest border border-border-subtle text-text-primary text-sm rounded p-2.5 mb-4 font-sans font-semibold outline-none focus:ring-2 focus:ring-primary-override"
             >
               <option value="OPEN">OPEN - Pending Review</option>
               <option value="ASSIGNED">ASSIGNED - Field Verification</option>

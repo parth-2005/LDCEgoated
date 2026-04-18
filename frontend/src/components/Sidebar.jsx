@@ -55,7 +55,7 @@ const ROLE_ACCENT = {
 
 const SIDEBAR_BG = {
   DFO:             'bg-shell',
-  STATE_ADMIN:     'bg-[#150825]',
+  STATE_ADMIN:     'bg-shell',
   AUDIT_OFFICER:   'bg-shell',
   SCHEME_VERIFIER: 'bg-shell',
   USER:            'bg-shell',
@@ -89,7 +89,7 @@ export default function Sidebar({ activePage, onNavigate, role, onLogout }) {
       </div>
 
       {/* Role badge */}
-      <div className="mx-5 mt-2 mb-4 px-3 py-2 bg-white/5 border border-white/10 rounded-md flex items-center gap-2">
+      <div className="mx-5 mt-2 mb-4 px-3 py-2 bg-surface-lowest/5 border border-white/10 rounded-md flex items-center gap-2">
         <div className={`w-2 h-2 rounded-full ${accentDot} flex-shrink-0`} />
         <span className="text-xs text-white/90 font-mono truncate">{ROLE_LABELS[role]}</span>
       </div>
@@ -105,8 +105,8 @@ export default function Sidebar({ activePage, onNavigate, role, onLogout }) {
               onClick={() => onNavigate(item.id)}
               className={`w-full flex items-center gap-3 px-3 py-2.5 text-sm transition-all rounded-md font-sans border-l-2
                 ${active
-                  ? `bg-white/10 ${activeClass} border-l-2`
-                  : 'text-white/55 hover:bg-white/5 hover:text-white border-transparent'
+                  ? `bg-surface-lowest/10 ${activeClass} border-l-2`
+                  : 'text-white/55 hover:bg-surface-lowest/5 hover:text-white border-transparent'
                 }`}
             >
               <Icon size={17} strokeWidth={active ? 2.5 : 2} />
@@ -120,7 +120,7 @@ export default function Sidebar({ activePage, onNavigate, role, onLogout }) {
       <div className="p-4 border-t border-white/10">
         <button
           onClick={onLogout}
-          className="w-full flex items-center gap-2 px-3 py-2 text-xs text-white/40 hover:text-white/70 hover:bg-white/5 rounded-md transition-all font-data"
+          className="w-full flex items-center gap-2 px-3 py-2 text-xs text-white/40 hover:text-white/70 hover:bg-surface-lowest/5 rounded-md transition-all font-data"
         >
           <LogOut size={14} />
           Sign out

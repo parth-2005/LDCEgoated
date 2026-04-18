@@ -4,7 +4,7 @@ import { BookOpen, ChevronDown, ChevronUp, Edit3, Save, X, CheckCircle, Loader2 
 
 const STATUS_COLORS = {
   ACTIVE: 'bg-emerald-100 text-emerald-700',
-  INACTIVE: 'bg-gray-100 text-gray-500',
+  INACTIVE: 'bg-surface-low text-text-secondary',
   DRAFT: 'bg-yellow-100 text-yellow-700',
 }
 
@@ -72,11 +72,11 @@ export default function RulesEngine() {
           </p>
         </div>
         <div className="flex gap-3">
-          <div className="px-4 py-2.5 bg-white rounded-lg border border-gray-200 shadow-sm text-center">
+          <div className="px-4 py-2.5 bg-surface-lowest rounded-lg border border-border-subtle shadow-sm text-center">
             <p className="text-xl font-bold font-sans text-text-primary">{totalBeneficiaries.toLocaleString('en-IN')}</p>
             <p className="text-xs text-text-secondary font-data">Total Beneficiaries</p>
           </div>
-          <div className="px-4 py-2.5 bg-white rounded-lg border border-gray-200 shadow-sm text-center">
+          <div className="px-4 py-2.5 bg-surface-lowest rounded-lg border border-border-subtle shadow-sm text-center">
             <p className="text-xl font-bold font-sans text-text-primary">₹{(totalDisbursed / 10000000).toFixed(1)}Cr</p>
             <p className="text-xs text-text-secondary font-data">Total Disbursed</p>
           </div>
@@ -91,17 +91,17 @@ export default function RulesEngine() {
           const isSaved = saved === scheme.scheme_id
 
           return (
-            <div key={scheme.scheme_id} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div key={scheme.scheme_id} className="bg-surface-lowest rounded-xl shadow-sm border border-border-subtle overflow-hidden">
               {/* Card header — always visible */}
               <div
-                className="flex items-center gap-4 px-6 py-5 cursor-pointer hover:bg-gray-50/50 transition-colors"
+                className="flex items-center gap-4 px-6 py-5 cursor-pointer hover:bg-surface-low/50 transition-colors"
                 onClick={() => !isEditing && setExpanded(isExpanded ? null : scheme.scheme_id)}
               >
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
                     <span className="text-xs font-mono text-text-secondary">{scheme.scheme_id}</span>
                     <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${STATUS_COLORS[scheme.status]}`}>{scheme.status}</span>
-                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${DEPT_COLORS[scheme.department] || 'bg-gray-100 text-gray-600'}`}>{scheme.department}</span>
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${DEPT_COLORS[scheme.department] || 'bg-surface-low text-text-secondary'}`}>{scheme.department}</span>
                   </div>
                   <h3 className="text-base font-bold text-text-primary">{scheme.name}</h3>
                   <p className="text-xs text-text-secondary font-data mt-0.5">
@@ -119,13 +119,13 @@ export default function RulesEngine() {
                     <p className="text-base font-bold font-mono text-text-primary">₹{(scheme.total_disbursed / 10000000).toFixed(2)}Cr</p>
                     <p className="text-xs text-text-secondary font-data">Total disbursed</p>
                   </div>
-                  {isExpanded ? <ChevronUp size={18} className="text-gray-400" /> : <ChevronDown size={18} className="text-gray-300" />}
+                  {isExpanded ? <ChevronUp size={18} className="text-text-secondary" /> : <ChevronDown size={18} className="text-text-secondary/70" />}
                 </div>
               </div>
 
               {/* Expanded section */}
               {isExpanded && (
-                <div className="border-t border-gray-100 px-6 py-5 bg-gray-50/30">
+                <div className="border-t border-border-subtle px-6 py-5 bg-surface-low/30">
                   {!isEditing ? (
                     <div className="grid grid-cols-3 gap-6">
                       {/* Eligibility rules */}
@@ -175,7 +175,7 @@ export default function RulesEngine() {
                       </div>
 
                       {/* Edit button */}
-                      <div className="col-span-3 flex justify-end pt-2 border-t border-gray-100">
+                      <div className="col-span-3 flex justify-end pt-2 border-t border-border-subtle">
                         <button
                           onClick={() => startEdit(scheme)}
                           className="flex items-center gap-2 px-4 py-2 bg-violet-600 text-white text-xs font-bold rounded-lg hover:bg-violet-700 transition-all"
@@ -195,7 +195,7 @@ export default function RulesEngine() {
                             min={0} max={100}
                             value={editState.min_attendance_pct}
                             onChange={e => setEditState(s => ({ ...s, min_attendance_pct: e.target.value }))}
-                            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm font-mono outline-none focus:ring-2 focus:ring-violet-400/30 focus:border-violet-400 transition-all"
+                            className="w-full px-3 py-2 border border-border-subtle rounded-lg text-sm font-mono outline-none focus:ring-2 focus:ring-violet-400/30 focus:border-violet-400 transition-all"
                           />
                         </div>
                         <div>
@@ -203,7 +203,7 @@ export default function RulesEngine() {
                           <select
                             value={editState.gender_target}
                             onChange={e => setEditState(s => ({ ...s, gender_target: e.target.value }))}
-                            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-violet-400/30 focus:border-violet-400 transition-all"
+                            className="w-full px-3 py-2 border border-border-subtle rounded-lg text-sm outline-none focus:ring-2 focus:ring-violet-400/30 focus:border-violet-400 transition-all"
                           >
                             <option value="ALL">All</option>
                             <option value="F">Female Only</option>
@@ -215,7 +215,7 @@ export default function RulesEngine() {
                           <select
                             value={editState.status}
                             onChange={e => setEditState(s => ({ ...s, status: e.target.value }))}
-                            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-violet-400/30 focus:border-violet-400 transition-all"
+                            className="w-full px-3 py-2 border border-border-subtle rounded-lg text-sm outline-none focus:ring-2 focus:ring-violet-400/30 focus:border-violet-400 transition-all"
                           >
                             <option value="ACTIVE">Active</option>
                             <option value="INACTIVE">Inactive</option>
@@ -230,14 +230,14 @@ export default function RulesEngine() {
                           onChange={e => setEditState(s => ({ ...s, mutual_exclusions: e.target.value }))}
                           rows={4}
                           placeholder="SCH-NLY, SCH-NSVSY..."
-                          className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm font-mono outline-none focus:ring-2 focus:ring-violet-400/30 focus:border-violet-400 transition-all resize-none"
+                          className="w-full px-3 py-2 border border-border-subtle rounded-lg text-sm font-mono outline-none focus:ring-2 focus:ring-violet-400/30 focus:border-violet-400 transition-all resize-none"
                         />
                         <p className="text-xs text-text-secondary font-data mt-1">Enter scheme IDs that cannot be combined with this scheme.</p>
                       </div>
-                      <div className="col-span-2 flex justify-end gap-3 pt-2 border-t border-gray-100">
+                      <div className="col-span-2 flex justify-end gap-3 pt-2 border-t border-border-subtle">
                         <button
                           onClick={() => setEditing(null)}
-                          className="flex items-center gap-2 px-4 py-2 border border-gray-200 text-xs font-bold text-text-secondary rounded-lg hover:bg-gray-100 transition-all"
+                          className="flex items-center gap-2 px-4 py-2 border border-border-subtle text-xs font-bold text-text-secondary rounded-lg hover:bg-surface-low transition-all"
                         >
                           <X size={13} /> Cancel
                         </button>

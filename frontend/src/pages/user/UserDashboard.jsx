@@ -55,9 +55,9 @@ function KYCModal({ user, onClose, onComplete }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
+      <div className="bg-surface-lowest rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border-subtle bg-surface-low">
           <div className="flex items-center gap-3">
             <Shield size={20} className="text-primary-override" />
             <div>
@@ -66,7 +66,7 @@ function KYCModal({ user, onClose, onComplete }) {
             </div>
           </div>
           {step !== 2 && (
-            <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors">
+            <button onClick={onClose} className="text-text-secondary hover:text-text-secondary transition-colors">
               <X size={18} />
             </button>
           )}
@@ -80,13 +80,13 @@ function KYCModal({ user, onClose, onComplete }) {
                 <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold mb-1 transition-all ${
                   step > i + 1 ? 'bg-emerald-500 text-white' :
                   step === i + 1 ? 'bg-primary-override text-white' :
-                  'bg-gray-100 text-gray-400'
+                  'bg-surface-low text-text-secondary'
                 }`}>
                   {step > i + 1 ? <Check size={14} /> : i + 1}
                 </div>
-                <span className={`text-[10px] font-data ${step === i + 1 ? 'text-primary-override font-bold' : 'text-gray-400'}`}>{s}</span>
+                <span className={`text-[10px] font-data ${step === i + 1 ? 'text-primary-override font-bold' : 'text-text-secondary'}`}>{s}</span>
               </div>
-              {i < 2 && <div className={`flex-1 h-px mx-1 mb-5 ${step > i + 1 ? 'bg-emerald-400' : 'bg-gray-200'}`} />}
+              {i < 2 && <div className={`flex-1 h-px mx-1 mb-5 ${step > i + 1 ? 'bg-emerald-400' : 'bg-surface-low'}`} />}
             </div>
           ))}
         </div>
@@ -99,7 +99,7 @@ function KYCModal({ user, onClose, onComplete }) {
             </p>
             <div className="space-y-3 mb-6">
               {INFO_ROWS.map(({ icon: Icon, label, value }) => (
-                <div key={label} className="flex items-center gap-3 px-4 py-3 bg-gray-50 rounded-lg">
+                <div key={label} className="flex items-center gap-3 px-4 py-3 bg-surface-low rounded-lg">
                   <Icon size={16} className="text-text-secondary flex-shrink-0" />
                   <div className="flex-1 min-w-0 flex items-center justify-between">
                     <span className="text-xs text-text-secondary font-data">{label}</span>
@@ -109,7 +109,7 @@ function KYCModal({ user, onClose, onComplete }) {
               ))}
             </div>
             <div className="flex gap-3">
-              <button onClick={onClose} className="flex-1 py-2.5 border border-gray-200 text-sm font-semibold text-text-secondary rounded-xl hover:bg-gray-50 transition-all">
+              <button onClick={onClose} className="flex-1 py-2.5 border border-border-subtle text-sm font-semibold text-text-secondary rounded-xl hover:bg-surface-low transition-all">
                 Cancel
               </button>
               <button onClick={() => setStep(2)} className="flex-1 py-2.5 bg-primary-override text-white text-sm font-bold rounded-xl hover:bg-blue-900 transition-all">
@@ -131,7 +131,7 @@ function KYCModal({ user, onClose, onComplete }) {
               {/* Simulated camera feed */}
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="w-28 h-28 rounded-full bg-gray-700 flex items-center justify-center">
-                  <User size={48} className="text-gray-500" />
+                  <User size={48} className="text-text-secondary" />
                 </div>
               </div>
 
@@ -169,7 +169,7 @@ function KYCModal({ user, onClose, onComplete }) {
 
             {/* Progress bar */}
             {scanning && (
-              <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden mb-4">
+              <div className="w-full h-1.5 bg-surface-low rounded-full overflow-hidden mb-4">
                 <div className="h-full bg-emerald-500 rounded-full transition-all" style={{ width: `${scanProgress}%` }} />
               </div>
             )}
@@ -241,7 +241,7 @@ function KYCCard({ kyc, onOpenModal }) {
 
       {/* Progress bar */}
       <div className="mb-4">
-        <div className="h-2 bg-white/60 rounded-full overflow-hidden">
+        <div className="h-2 bg-surface-lowest/60 rounded-full overflow-hidden">
           <div className={`h-full rounded-full transition-all ${isExpiringSoon ? 'bg-yellow-500' : 'bg-emerald-500'}`}
             style={{ width: `${Math.max(0, (days_remaining / 90) * 100)}%` }} />
         </div>
@@ -256,7 +256,7 @@ function KYCCard({ kyc, onOpenModal }) {
         className={`w-full py-2.5 text-sm font-bold rounded-lg transition-all flex items-center justify-center gap-2 ${
           isExpired ? 'bg-risk-critical text-white hover:bg-red-700'
           : isExpiringSoon ? 'bg-yellow-600 text-white hover:bg-yellow-700'
-          : 'bg-white border border-emerald-300 text-emerald-700 hover:bg-emerald-50'
+          : 'bg-surface-lowest border border-emerald-300 text-emerald-700 hover:bg-emerald-50'
         }`}
       >
         <RefreshCw size={14} />
@@ -347,8 +347,8 @@ export default function UserDashboard() {
           )}
 
           {/* Scheme Tracker */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+          <div className="bg-surface-lowest rounded-xl shadow-sm border border-border-subtle overflow-hidden">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-border-subtle">
               <h2 className="font-bold text-text-primary font-sans">My Scheme Applications</h2>
               <span className="text-xs text-text-secondary font-data">{user.registered_schemes.length} registered</span>
             </div>
@@ -384,11 +384,11 @@ export default function UserDashboard() {
                         { label: 'Payment', done: !!scheme.last_payment },
                       ].map((s, i, arr) => (
                         <div key={s.label} className="flex items-center gap-1.5">
-                          <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold ${s.done ? 'bg-emerald-500 text-white' : 'bg-gray-200 text-gray-500'}`}>
+                          <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold ${s.done ? 'bg-emerald-500 text-white' : 'bg-surface-low text-text-secondary'}`}>
                             {s.done ? '✓' : i + 1}
                           </div>
-                          <span className={`text-[10px] font-data ${s.done ? 'text-emerald-600 font-bold' : 'text-gray-400'}`}>{s.label}</span>
-                          {i < arr.length - 1 && <div className={`h-px w-3 ${s.done && arr[i+1].done ? 'bg-emerald-400' : 'bg-gray-200'}`} />}
+                          <span className={`text-[10px] font-data ${s.done ? 'text-emerald-600 font-bold' : 'text-text-secondary'}`}>{s.label}</span>
+                          {i < arr.length - 1 && <div className={`h-px w-3 ${s.done && arr[i+1].done ? 'bg-emerald-400' : 'bg-surface-low'}`} />}
                         </div>
                       ))}
                     </div>
@@ -412,8 +412,8 @@ export default function UserDashboard() {
 
         {/* RIGHT: Scheme News + Quick Actions */}
         <div className="space-y-4">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            <div className="flex items-center gap-2 px-5 py-4 border-b border-gray-100">
+          <div className="bg-surface-lowest rounded-xl shadow-sm border border-border-subtle overflow-hidden">
+            <div className="flex items-center gap-2 px-5 py-4 border-b border-border-subtle">
               <h2 className="font-bold text-text-primary font-sans text-sm">Scheme News & Updates</h2>
             </div>
             <div className="divide-y divide-gray-50">
@@ -421,9 +421,9 @@ export default function UserDashboard() {
                 const isRead = readNews.has(news.id)
                 return (
                   <button key={news.id} onClick={() => setReadNews(s => new Set([...s, news.id]))}
-                    className={`w-full px-5 py-4 text-left hover:bg-gray-50 transition-colors ${isRead ? 'opacity-55' : ''}`}>
+                    className={`w-full px-5 py-4 text-left hover:bg-surface-low transition-colors ${isRead ? 'opacity-55' : ''}`}>
                     <div className="flex items-start justify-between gap-2 mb-1.5">
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${TAG_CONFIG[news.tag] || 'bg-gray-100 text-gray-600'}`}>{news.tag}</span>
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${TAG_CONFIG[news.tag] || 'bg-surface-low text-text-secondary'}`}>{news.tag}</span>
                       <span className="text-[10px] font-mono text-text-secondary">{news.date}</span>
                     </div>
                     <p className="text-sm font-bold font-sans text-text-primary leading-snug mb-1">{news.title}</p>
@@ -435,8 +435,8 @@ export default function UserDashboard() {
           </div>
 
           {/* Quick links */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            <div className="px-5 py-3 border-b border-gray-100">
+          <div className="bg-surface-lowest rounded-xl shadow-sm border border-border-subtle overflow-hidden">
+            <div className="px-5 py-3 border-b border-border-subtle">
               <p className="text-xs font-bold text-text-secondary uppercase tracking-widest font-data">Quick Actions</p>
             </div>
             {[
@@ -446,11 +446,11 @@ export default function UserDashboard() {
             ].map((a, i) => {
               const Icon = a.icon
               return (
-                <button key={i} className="w-full flex items-center justify-between px-5 py-3.5 border-b border-gray-50 hover:bg-gray-50 transition-colors">
+                <button key={i} className="w-full flex items-center justify-between px-5 py-3.5 border-b border-border-subtle hover:bg-surface-low transition-colors">
                   <div className="flex items-center gap-2.5 text-sm font-medium text-text-primary font-sans">
                     <Icon size={15} className="text-text-secondary" /> {a.label}
                   </div>
-                  <ChevronRight size={14} className="text-gray-300" />
+                  <ChevronRight size={14} className="text-text-secondary/70" />
                 </button>
               )
             })}

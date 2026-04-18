@@ -32,9 +32,9 @@ export default function AssignCaseModal({ caseId, caseName, onClose, onAssigned 
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
+      <div className="bg-surface-lowest rounded-xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border-subtle">
           <div>
             <h2 className="text-base font-bold text-text-primary font-sans">Assign Case</h2>
             <p className="text-xs text-text-secondary font-data mt-0.5 truncate max-w-xs">{caseName}</p>
@@ -75,7 +75,7 @@ export default function AssignCaseModal({ caseId, caseName, onClose, onAssigned 
                       className={`w-full flex items-center justify-between px-4 py-3 rounded-lg border-2 text-left transition-all ${
                         selected === v.officer_id
                           ? 'border-primary-override bg-blue-50'
-                          : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                          : 'border-border-subtle hover:border-border-subtle hover:bg-surface-low'
                       }`}
                     >
                       <div>
@@ -99,7 +99,7 @@ export default function AssignCaseModal({ caseId, caseName, onClose, onAssigned 
             <div className="flex gap-3 pt-2">
               <button
                 onClick={onClose}
-                className="flex-1 py-2.5 border border-gray-200 text-sm font-semibold text-text-secondary rounded-lg hover:bg-gray-50 transition-all"
+                className="flex-1 py-2.5 border border-border-subtle text-sm font-semibold text-text-secondary rounded-lg hover:bg-surface-low transition-all"
               >
                 Cancel
               </button>

@@ -54,7 +54,7 @@ export default function SchemeVerifierDashboard({ onSubmitEvidence }) {
             { label: 'Pending', value: pending.length, color: 'text-orange-600' },
             { label: 'Submitted', value: done.length, color: 'text-emerald-600' },
           ].map(s => (
-            <div key={s.label} className="px-4 py-2.5 bg-white rounded-xl border border-gray-200 shadow-sm text-center min-w-[80px]">
+            <div key={s.label} className="px-4 py-2.5 bg-surface-lowest rounded-xl border border-border-subtle shadow-sm text-center min-w-[80px]">
               <p className={`text-2xl font-bold ${s.color}`}>{s.value}</p>
               <p className="text-xs text-text-secondary font-data">{s.label}</p>
             </div>
@@ -69,7 +69,7 @@ export default function SchemeVerifierDashboard({ onSubmitEvidence }) {
           <h2 className="text-xs font-bold text-text-secondary uppercase tracking-widest font-data">Pending Evidence Submission</h2>
         </div>
         {pending.length === 0 ? (
-          <div className="bg-white rounded-xl border border-gray-100 p-8 text-center text-text-secondary font-data text-sm">
+          <div className="bg-surface-lowest rounded-xl border border-border-subtle p-8 text-center text-text-secondary font-data text-sm">
             No pending cases. All caught up!
           </div>
         ) : (
@@ -77,7 +77,7 @@ export default function SchemeVerifierDashboard({ onSubmitEvidence }) {
             {pending.map(c => {
               const pri = PRIORITY[c.anomaly_type] || PRIORITY.DUPLICATE
               return (
-                <div key={c.case_id} className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 flex items-center gap-5 hover:shadow-md transition-shadow">
+                <div key={c.case_id} className="bg-surface-lowest rounded-xl border border-border-subtle shadow-sm p-5 flex items-center gap-5 hover:shadow-md transition-shadow">
                   {/* Priority stripe */}
                   <div className={`w-1 self-stretch rounded-full ${c.anomaly_type === 'DEAD_BENEFICIARY' ? 'bg-red-500' : c.anomaly_type === 'DUPLICATE' ? 'bg-orange-400' : 'bg-yellow-400'}`} />
 
@@ -120,7 +120,7 @@ export default function SchemeVerifierDashboard({ onSubmitEvidence }) {
           </div>
           <div className="space-y-2">
             {done.map(c => (
-              <div key={c.case_id} className="bg-white rounded-xl border border-gray-100 p-4 flex items-center gap-4 opacity-70">
+              <div key={c.case_id} className="bg-surface-lowest rounded-xl border border-border-subtle p-4 flex items-center gap-4 opacity-70">
                 <div className="w-1 self-stretch rounded-full bg-emerald-400" />
                 <div className="flex-1">
                   <span className="text-xs font-mono text-text-secondary">{c.case_id}</span>

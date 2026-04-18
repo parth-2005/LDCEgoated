@@ -53,7 +53,7 @@ export default function MiddlemenList() {
   }
 
   const SortIcon = ({ k }) => {
-    if (sortKey !== k) return <Minus size={12} className="text-gray-300" />
+    if (sortKey !== k) return <Minus size={12} className="text-text-secondary/70" />
     return sortDir === 'desc' ? <ChevronDown size={12} className="text-primary-override" /> : <ChevronUp size={12} className="text-primary-override" />
   }
 
@@ -71,7 +71,7 @@ export default function MiddlemenList() {
           </p>
         </div>
         <div className="flex gap-3 text-sm font-data">
-          <div className="px-4 py-2 bg-white rounded-lg border border-gray-200 shadow-sm text-center">
+          <div className="px-4 py-2 bg-surface-lowest rounded-lg border border-border-subtle shadow-sm text-center">
             <p className="text-2xl font-bold text-text-primary font-sans">{institutions.length}</p>
             <p className="text-xs text-text-secondary">Total</p>
           </div>
@@ -105,10 +105,9 @@ export default function MiddlemenList() {
       )}
 
       {/* Table */}
-      {!loading && !error && (
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="bg-surface-lowest rounded-xl shadow-sm border border-border-subtle overflow-hidden">
         <table className="w-full text-left">
-          <thead className="bg-gray-50 border-b border-gray-100">
+          <thead className="bg-surface-low border-b border-border-subtle">
             <tr>
               <th className="px-5 py-3.5 text-xs font-bold text-text-secondary uppercase tracking-widest font-sans">Institution</th>
               <th className="px-4 py-3.5 text-xs font-bold text-text-secondary uppercase tracking-widest font-sans">Type</th>
@@ -130,7 +129,7 @@ export default function MiddlemenList() {
               <>
                 <tr
                   key={inst.institution_id}
-                  className={`${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'} hover:bg-blue-50/40 transition-colors cursor-pointer border-b border-gray-100`}
+                  className={`${idx % 2 === 0 ? 'bg-surface-lowest' : 'bg-surface-low/50'} hover:bg-blue-50/40 transition-colors cursor-pointer border-b border-border-subtle`}
                   onClick={() => setExpanded(expanded === inst.institution_id ? null : inst.institution_id)}
                 >
                   <td className="px-5 py-4">
@@ -138,7 +137,7 @@ export default function MiddlemenList() {
                     <p className="text-xs text-text-secondary font-data mt-0.5">{inst.taluka} · {inst.beneficiary_count} beneficiaries</p>
                   </td>
                   <td className="px-4 py-4">
-                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${TYPE_COLORS[inst.type] || 'bg-gray-100 text-gray-700'}`}>
+                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${TYPE_COLORS[inst.type] || 'bg-surface-low text-text-secondary'}`}>
                       {inst.type.replace('_', ' ')}
                     </span>
                   </td>
@@ -172,7 +171,7 @@ export default function MiddlemenList() {
                           Assign →
                         </button>
                       )}
-                      {expanded === inst.institution_id ? <ChevronUp size={16} className="text-gray-400" /> : <ChevronDown size={16} className="text-gray-300" />}
+                      {expanded === inst.institution_id ? <ChevronUp size={16} className="text-text-secondary" /> : <ChevronDown size={16} className="text-text-secondary/70" />}
                     </div>
                   </td>
                 </tr>
@@ -243,7 +242,6 @@ export default function MiddlemenList() {
           </tbody>
         </table>
       </div>
-      )}
 
       {assignModal && (
         <AssignCaseModal

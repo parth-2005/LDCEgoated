@@ -147,7 +147,7 @@ export default function GujaratHeatmap() {
             { label: 'Amount at Risk', value: `₹${(totalRisk / 100000).toFixed(1)}L` },
             { label: 'Districts Affected', value: `${districtStats.filter(d => d.total_flags > 0).length}/33` },
           ].map((s, i) => (
-            <div key={i} className="px-4 py-2.5 bg-white rounded-xl border border-gray-200 shadow-sm text-center min-w-[110px]">
+            <div key={i} className="px-4 py-2.5 bg-surface-lowest rounded-xl border border-border-subtle shadow-sm text-center min-w-[110px]">
               <p className={`text-2xl font-bold font-sans ${s.color || 'text-text-primary'}`}>{s.value}</p>
               <p className="text-xs text-text-secondary font-data">{s.label}</p>
             </div>
@@ -157,7 +157,7 @@ export default function GujaratHeatmap() {
 
       <div className="flex gap-5">
         {/* Map Panel */}
-        <div className="flex-1 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden relative">
+        <div className="flex-1 bg-surface-lowest rounded-2xl shadow-sm border border-border-subtle overflow-hidden relative">
           {/* Zoom controls */}
           <div className="absolute top-3 right-3 z-10 flex flex-col gap-1.5">
             {[
@@ -165,7 +165,7 @@ export default function GujaratHeatmap() {
               { icon: ZoomOut, onClick: () => setZoom(z => Math.max(z - 0.5, 0.5)) },
               { icon: RotateCcw, onClick: () => setZoom(1) },
             ].map(({ icon: Icon, onClick }, i) => (
-              <button key={i} onClick={onClick} className="w-8 h-8 flex items-center justify-center bg-white border border-gray-200 rounded-lg shadow-sm hover:bg-gray-50 transition-colors">
+              <button key={i} onClick={onClick} className="w-8 h-8 flex items-center justify-center bg-surface-lowest border border-border-subtle rounded-lg shadow-sm hover:bg-surface-low transition-colors">
                 <Icon size={14} />
               </button>
             ))}
@@ -173,7 +173,7 @@ export default function GujaratHeatmap() {
 
           {/* Hover tooltip */}
           {hovered && (
-            <div className="absolute top-3 left-3 z-10 bg-white/95 backdrop-blur-sm border border-gray-200 rounded-lg px-3 py-2 shadow-md pointer-events-none">
+            <div className="absolute top-3 left-3 z-10 bg-surface-lowest/95 backdrop-blur-sm border border-border-subtle rounded-lg px-3 py-2 shadow-md pointer-events-none">
               <p className="text-sm font-bold text-text-primary font-sans">{hovered}</p>
               {statByDistrict[hovered] ? (
                 <p className="text-xs text-risk-critical font-mono font-bold">
@@ -240,11 +240,11 @@ export default function GujaratHeatmap() {
           </ComposableMap>
 
           {/* Legend */}
-          <div className="flex items-center flex-wrap gap-3 px-4 pb-3 pt-1 border-t border-gray-50">
+          <div className="flex items-center flex-wrap gap-3 px-4 pb-3 pt-1 border-t border-border-subtle">
             <span className="text-[10px] text-text-secondary font-data font-bold uppercase tracking-wider">Flags:</span>
             {LEGEND.map(l => (
               <div key={l.label} className="flex items-center gap-1">
-                <div className="w-4 h-3 rounded-sm border border-gray-100" style={{ backgroundColor: l.color }} />
+                <div className="w-4 h-3 rounded-sm border border-border-subtle" style={{ backgroundColor: l.color }} />
                 <span className="text-[10px] text-text-secondary font-data">{l.label}</span>
               </div>
             ))}
@@ -254,18 +254,18 @@ export default function GujaratHeatmap() {
         {/* Side Panel */}
         <div className="w-80 flex-shrink-0 flex flex-col gap-4">
           {selectedData ? (
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-              <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 bg-gray-50">
+            <div className="bg-surface-lowest rounded-2xl shadow-sm border border-border-subtle overflow-hidden">
+              <div className="flex items-center justify-between px-5 py-4 border-b border-border-subtle bg-surface-low">
                 <div>
                   <h3 className="font-bold text-text-primary font-sans">{selectedData.district}</h3>
                   <p className="text-xs text-text-secondary font-data mt-0.5">{selectedData.beneficiaries.toLocaleString()} beneficiaries</p>
                 </div>
-                <button onClick={() => setSelected(null)} className="text-gray-400 hover:text-gray-600 transition-colors">
+                <button onClick={() => setSelected(null)} className="text-text-secondary hover:text-text-secondary transition-colors">
                   <X size={16} />
                 </button>
               </div>
 
-              <div className="px-5 py-4 border-b border-gray-100">
+              <div className="px-5 py-4 border-b border-border-subtle">
                 <div className="flex items-end justify-between">
                   <div>
                     <p className="text-xs text-text-secondary font-data">Total Flags</p>
@@ -293,7 +293,7 @@ export default function GujaratHeatmap() {
                       <span className="text-xs font-medium text-text-secondary font-data">{item.label}</span>
                       <span className="text-xs font-bold font-mono" style={{ color: item.color }}>{item.value}</span>
                     </div>
-                    <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                    <div className="h-1.5 bg-surface-low rounded-full overflow-hidden">
                       <div className="h-full rounded-full" style={{
                         width: `${selectedData.total_flags > 0 ? (item.value / selectedData.total_flags) * 100 : 0}%`,
                         backgroundColor: item.color,
@@ -303,7 +303,7 @@ export default function GujaratHeatmap() {
                 ))}
               </div>
 
-              <div className="px-5 py-3 bg-gray-50 border-t border-gray-100">
+              <div className="px-5 py-3 bg-surface-low border-t border-border-subtle">
                 <div className="flex items-center gap-1.5 text-xs text-text-secondary font-data">
                   <TrendingUp size={12} />
                   <span>
@@ -316,7 +316,7 @@ export default function GujaratHeatmap() {
               </div>
             </div>
           ) : (
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 flex flex-col items-center justify-center text-center h-52">
+            <div className="bg-surface-lowest rounded-2xl shadow-sm border border-border-subtle p-8 flex flex-col items-center justify-center text-center h-52">
               <div className="w-12 h-12 rounded-full bg-violet-50 flex items-center justify-center mb-3">
                 <div className="w-7 h-7 rounded-sm" style={{ background: 'linear-gradient(135deg, #7C3AED 0%, #f87171 100%)' }} />
               </div>
@@ -326,8 +326,8 @@ export default function GujaratHeatmap() {
           )}
 
           {/* Top 5 */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-            <div className="px-5 py-3 border-b border-gray-100">
+          <div className="bg-surface-lowest rounded-2xl shadow-sm border border-border-subtle overflow-hidden">
+            <div className="px-5 py-3 border-b border-border-subtle">
               <p className="text-xs font-bold text-text-secondary uppercase tracking-widest font-data">Top 5 High-Risk Districts</p>
             </div>
             {[...districtStats]
@@ -338,7 +338,7 @@ export default function GujaratHeatmap() {
                 <button
                   key={d.district}
                   onClick={() => setSelected(d.district)}
-                  className={`w-full flex items-center gap-3 px-5 py-3 border-b border-gray-50 hover:bg-gray-50 transition-colors text-left ${selected === d.district ? 'bg-violet-50' : ''}`}
+                  className={`w-full flex items-center gap-3 px-5 py-3 border-b border-border-subtle hover:bg-surface-low transition-colors text-left ${selected === d.district ? 'bg-violet-50' : ''}`}
                 >
                   <span className="text-sm font-bold font-mono text-text-secondary w-5">{i + 1}</span>
                   <div className="flex-1 min-w-0">

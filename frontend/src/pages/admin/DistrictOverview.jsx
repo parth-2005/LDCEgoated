@@ -12,7 +12,7 @@ const LEAKAGE_COLORS = {
 function RiskBar({ value, max, color }) {
   return (
     <div className="flex items-center gap-2">
-      <div className="w-24 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+      <div className="w-24 h-1.5 bg-surface-low rounded-full overflow-hidden">
         <div className="h-full rounded-full" style={{ width: `${(value / max) * 100}%`, backgroundColor: color }} />
       </div>
       <span className="text-xs font-mono font-bold" style={{ color }}>{value}</span>
@@ -79,7 +79,7 @@ export default function DistrictOverview() {
             { label: 'Amount at Risk', value: `₹${(totalRisk / 100000).toFixed(0)}L` },
             { label: 'Beneficiaries', value: totalBeneficiaries.toLocaleString('en-IN') },
           ].map((s, i) => (
-            <div key={i} className="px-4 py-2.5 bg-white rounded-lg border border-gray-200 shadow-sm text-center min-w-[100px]">
+            <div key={i} className="px-4 py-2.5 bg-surface-lowest rounded-lg border border-border-subtle shadow-sm text-center min-w-[100px]">
               <p className={`text-xl font-bold font-sans ${s.color || 'text-text-primary'}`}>{s.value}</p>
               <p className="text-xs text-text-secondary font-data">{s.label}</p>
             </div>
@@ -88,22 +88,22 @@ export default function DistrictOverview() {
       </div>
 
       {/* Search + table */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="bg-surface-lowest rounded-xl shadow-sm border border-border-subtle overflow-hidden">
         {/* Search bar */}
-        <div className="px-5 py-3 border-b border-gray-100 flex items-center gap-3">
-          <Search size={16} className="text-gray-400" />
+        <div className="px-5 py-3 border-b border-border-subtle flex items-center gap-3">
+          <Search size={16} className="text-text-secondary" />
           <input
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search district..."
-            className="flex-1 text-sm font-data outline-none text-text-primary placeholder:text-gray-300"
+            className="flex-1 text-sm font-data outline-none text-text-primary placeholder:text-text-secondary/70"
           />
           <span className="text-xs text-text-secondary font-data">{filtered.length} districts</span>
         </div>
 
         {/* Table */}
         <table className="w-full text-left">
-          <thead className="bg-gray-50 border-b border-gray-100">
+          <thead className="bg-surface-low border-b border-border-subtle">
             <tr>
               <th className="px-5 py-3 text-xs font-bold text-text-secondary uppercase tracking-widest font-sans w-6">#</th>
               <th className="px-4 py-3 text-xs font-bold text-text-secondary uppercase tracking-widest font-sans cursor-pointer hover:text-text-primary" onClick={() => toggleSort('district')}>
@@ -130,7 +130,7 @@ export default function DistrictOverview() {
               return (
                 <tr
                   key={d.district}
-                  className={`border-b border-gray-50 hover:bg-violet-50/30 transition-colors cursor-pointer ${isSelected ? 'bg-violet-50/50' : idx % 2 === 0 ? 'bg-white' : 'bg-gray-50/30'}`}
+                  className={`border-b border-border-subtle hover:bg-violet-50/30 transition-colors cursor-pointer ${isSelected ? 'bg-violet-50/50' : idx % 2 === 0 ? 'bg-surface-lowest' : 'bg-surface-low/30'}`}
                   onClick={() => setSelected(isSelected ? null : d.district)}
                 >
                   <td className="px-5 py-3.5 text-xs font-mono text-text-secondary">{idx + 1}</td>
@@ -140,7 +140,7 @@ export default function DistrictOverview() {
                   </td>
                   <td className="px-4 py-3.5">
                     <div className="flex items-center gap-2">
-                      <div className="w-20 h-2 bg-gray-100 rounded-full overflow-hidden">
+                      <div className="w-20 h-2 bg-surface-low rounded-full overflow-hidden">
                         <div
                           className="h-full rounded-full"
                           style={{

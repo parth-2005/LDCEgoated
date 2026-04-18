@@ -212,7 +212,7 @@ export default function SubmitEvidence({ caseData, onBack, onComplete }) {
     <div className="p-8 pb-20 font-sans max-w-3xl mx-auto">
       {/* Header */}
       <div className="flex items-center gap-4 mb-6">
-        <button onClick={onBack} className="p-2 rounded-lg hover:bg-gray-100 transition-colors text-text-secondary hover:text-text-primary">
+        <button onClick={onBack} className="p-2 rounded-lg hover:bg-surface-low transition-colors text-text-secondary hover:text-text-primary">
           <ArrowLeft size={18} />
         </button>
         <div className="flex-1">
@@ -233,14 +233,14 @@ export default function SubmitEvidence({ caseData, onBack, onComplete }) {
               <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
                 step > i ? 'bg-emerald-500 text-white' :
                 step === i ? 'bg-primary-override text-white' :
-                'bg-gray-100 text-gray-400'
+                'bg-surface-low text-text-secondary'
               }`}>
                 {step > i ? <Check size={14} /> : i + 1}
               </div>
-              <span className={`text-[10px] font-data mt-1 ${step === i ? 'text-primary-override font-bold' : 'text-gray-400'}`}>{s}</span>
+              <span className={`text-[10px] font-data mt-1 ${step === i ? 'text-primary-override font-bold' : 'text-text-secondary'}`}>{s}</span>
             </div>
             {i < STEPS.length - 1 && (
-              <div className={`flex-1 h-px mx-2 mb-4 ${step > i ? 'bg-emerald-400' : 'bg-gray-200'}`} />
+              <div className={`flex-1 h-px mx-2 mb-4 ${step > i ? 'bg-emerald-400' : 'bg-surface-low'}`} />
             )}
           </div>
         ))}
@@ -248,8 +248,8 @@ export default function SubmitEvidence({ caseData, onBack, onComplete }) {
 
       {/* ── STEP 0: Case Info ── */}
       {step === 0 && (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-100 bg-gray-50">
+        <div className="bg-surface-lowest rounded-2xl border border-border-subtle shadow-sm overflow-hidden">
+          <div className="px-6 py-4 border-b border-border-subtle bg-surface-low">
             <h2 className="font-bold text-text-primary">Confirm Case Details</h2>
             <p className="text-xs text-text-secondary font-data mt-0.5">Verify you have the correct case before submitting</p>
           </div>
@@ -264,7 +264,7 @@ export default function SubmitEvidence({ caseData, onBack, onComplete }) {
               { label: 'Amount at Risk',value: caseData?.amount ? `₹${caseData.amount.toLocaleString('en-IN')}` : '—' },
               { label: 'Assigned Date', value: caseData?.assigned_date },
             ].map(row => (
-              <div key={row.label} className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
+              <div key={row.label} className="flex items-center justify-between py-2 border-b border-border-subtle last:border-0">
                 <span className="text-xs text-text-secondary font-data">{row.label}</span>
                 <span className="text-sm font-bold text-text-primary font-sans">{row.value || '—'}</span>
               </div>
@@ -276,7 +276,7 @@ export default function SubmitEvidence({ caseData, onBack, onComplete }) {
               Submitting false evidence is a criminal offence under the Indian Penal Code. All submissions are GPS-verified and timestamped.
             </p>
           </div>
-          <div className="px-6 py-4 border-t border-gray-100">
+          <div className="px-6 py-4 border-t border-border-subtle">
             <button onClick={() => setStep(1)} className="w-full py-3 bg-primary-override text-white font-bold rounded-xl text-sm hover:bg-blue-900 transition-all flex items-center justify-center gap-2">
               Confirm & Upload Photo <ChevronRight size={16} />
             </button>
@@ -294,7 +294,7 @@ export default function SubmitEvidence({ caseData, onBack, onComplete }) {
             onDragLeave={() => setDragOver(false)}
             onClick={() => !photoFile && fileRef.current?.click()}
             className={`relative rounded-2xl border-2 border-dashed transition-all cursor-pointer overflow-hidden
-              ${dragOver ? 'border-primary-override bg-blue-50' : photoFile ? 'border-emerald-400 bg-emerald-50/30' : 'border-gray-300 bg-white hover:border-primary-override hover:bg-blue-50/20'}`}
+              ${dragOver ? 'border-primary-override bg-blue-50' : photoFile ? 'border-emerald-400 bg-emerald-50/30' : 'border-border-subtle bg-surface-lowest hover:border-primary-override hover:bg-blue-50/20'}`}
           >
             <input ref={fileRef} type="file" accept="image/*" className="hidden"
               onChange={e => handleFile(e.target.files?.[0])} />
@@ -308,15 +308,15 @@ export default function SubmitEvidence({ caseData, onBack, onComplete }) {
                     <p className="text-xs opacity-70">{(photoFile?.size / 1024).toFixed(0)} KB</p>
                   </div>
                   <button onClick={e => { e.stopPropagation(); setPhotoFile(null); setPhotoPreview(null); setGps(null); setExifDate(null) }}
-                    className="ml-auto w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center">
+                    className="ml-auto w-8 h-8 rounded-full bg-surface-lowest/20 hover:bg-surface-lowest/30 flex items-center justify-center">
                     <X size={14} className="text-white" />
                   </button>
                 </div>
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center py-16 px-8 text-center">
-                <div className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center mb-4">
-                  <Camera size={26} className="text-gray-400" />
+                <div className="w-14 h-14 rounded-full bg-surface-low flex items-center justify-center mb-4">
+                  <Camera size={26} className="text-text-secondary" />
                 </div>
                 <p className="text-sm font-bold text-text-primary mb-1">Click to upload or drag & drop</p>
                 <p className="text-xs text-text-secondary font-data">JPEG / PNG · Photo must contain GPS geotag in EXIF</p>
@@ -368,7 +368,7 @@ export default function SubmitEvidence({ caseData, onBack, onComplete }) {
           )}
 
           <div className="flex gap-3">
-            <button onClick={() => setStep(0)} className="px-5 py-2.5 border border-gray-200 text-sm font-semibold rounded-xl hover:bg-gray-50 transition-all">
+            <button onClick={() => setStep(0)} className="px-5 py-2.5 border border-border-subtle text-sm font-semibold rounded-xl hover:bg-surface-low transition-all">
               ← Back
             </button>
             <button onClick={() => setStep(2)} disabled={!canProceedStep1}
@@ -382,7 +382,7 @@ export default function SubmitEvidence({ caseData, onBack, onComplete }) {
       {/* ── STEP 2: Field Notes ── */}
       {step === 2 && (
         <div className="space-y-4">
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-5">
+          <div className="bg-surface-lowest rounded-2xl border border-border-subtle shadow-sm p-6 space-y-5">
 
             {/* Visit date */}
             <div>
@@ -390,7 +390,7 @@ export default function SubmitEvidence({ caseData, onBack, onComplete }) {
                 <Calendar size={11} className="inline mr-1" />Visit Date
               </label>
               <input type="date" value={visitDate} onChange={e => setVisitDate(e.target.value)}
-                className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm font-mono outline-none focus:ring-2 focus:ring-primary-override/30 focus:border-primary-override" />
+                className="w-full px-3 py-2.5 border border-border-subtle rounded-lg text-sm font-mono outline-none focus:ring-2 focus:ring-primary-override/30 focus:border-primary-override" />
             </div>
 
             {/* Beneficiary present? */}
@@ -405,7 +405,7 @@ export default function SubmitEvidence({ caseData, onBack, onComplete }) {
                     className={`flex-1 py-2.5 text-sm font-bold rounded-lg border-2 transition-all ${
                       beneficiaryPresent === val
                         ? val ? 'border-emerald-500 bg-emerald-50 text-emerald-700' : 'border-red-400 bg-red-50 text-red-700'
-                        : 'border-gray-200 text-text-secondary hover:border-gray-300'
+                        : 'border-border-subtle text-text-secondary hover:border-border-subtle'
                     }`}>
                     {val ? 'Yes — Present' : 'No — Absent'}
                   </button>
@@ -417,7 +417,7 @@ export default function SubmitEvidence({ caseData, onBack, onComplete }) {
             <div>
               <label className="block text-xs font-bold text-text-secondary uppercase tracking-widest mb-2 font-data">Finding Category</label>
               <select value={findingCategory} onChange={e => setFindingCategory(e.target.value)}
-                className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary-override/30 focus:border-primary-override bg-white">
+                className="w-full px-3 py-2.5 border border-border-subtle rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary-override/30 focus:border-primary-override bg-surface-lowest">
                 <option value="">Select finding…</option>
                 <option value="CONFIRMED_FRAUD">Confirmed Fraud — Evidence supports anomaly</option>
                 <option value="LEGITIMATE">Legitimate — No issue found</option>
@@ -439,7 +439,7 @@ export default function SubmitEvidence({ caseData, onBack, onComplete }) {
                 onChange={e => setNotes(e.target.value)}
                 rows={5}
                 placeholder="Describe what you observed at the field visit. Include: physical verification, documents checked, neighbours/witnesses spoken to, discrepancies found…"
-                className="w-full px-3 py-3 border border-gray-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary-override/30 focus:border-primary-override resize-none font-sans"
+                className="w-full px-3 py-3 border border-border-subtle rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary-override/30 focus:border-primary-override resize-none font-sans"
               />
               {notes.trim().length > 0 && notes.trim().length < 30 && (
                 <p className="text-xs text-orange-600 font-data mt-1">Add {30 - notes.trim().length} more characters</p>
@@ -448,7 +448,7 @@ export default function SubmitEvidence({ caseData, onBack, onComplete }) {
           </div>
 
           <div className="flex gap-3">
-            <button onClick={() => setStep(1)} className="px-5 py-2.5 border border-gray-200 text-sm font-semibold rounded-xl hover:bg-gray-50 transition-all">
+            <button onClick={() => setStep(1)} className="px-5 py-2.5 border border-border-subtle text-sm font-semibold rounded-xl hover:bg-surface-low transition-all">
               ← Back
             </button>
             <button onClick={runVerification} disabled={!canProceedStep2}
@@ -474,25 +474,25 @@ export default function SubmitEvidence({ caseData, onBack, onComplete }) {
                 </p>
               </div>
               <div className={`w-16 h-16 rounded-full flex items-center justify-center text-xl font-bold border-4 ${
-                verifyResult.approved ? 'border-emerald-400 text-emerald-700 bg-white' : 'border-yellow-400 text-yellow-700 bg-white'
+                verifyResult.approved ? 'border-emerald-400 text-emerald-700 bg-surface-lowest' : 'border-yellow-400 text-yellow-700 bg-surface-lowest'
               }`}>
                 {verifyResult.score}%
               </div>
             </div>
             {/* Score bar */}
-            <div className="h-2 bg-white rounded-full overflow-hidden">
+            <div className="h-2 bg-surface-lowest rounded-full overflow-hidden">
               <div className={`h-full rounded-full transition-all ${verifyResult.score >= 80 ? 'bg-emerald-500' : verifyResult.score >= 60 ? 'bg-yellow-500' : 'bg-red-500'}`}
                 style={{ width: `${verifyResult.score}%` }} />
             </div>
           </div>
 
           {/* Check breakdown */}
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-            <div className="px-5 py-3 border-b border-gray-100">
+          <div className="bg-surface-lowest rounded-2xl border border-border-subtle shadow-sm overflow-hidden">
+            <div className="px-5 py-3 border-b border-border-subtle">
               <p className="text-xs font-bold uppercase tracking-widest text-text-secondary font-data">Verification Checklist</p>
             </div>
             {verifyResult.checks.map(c => (
-              <div key={c.id} className="flex items-start gap-3 px-5 py-3.5 border-b border-gray-50 last:border-0">
+              <div key={c.id} className="flex items-start gap-3 px-5 py-3.5 border-b border-border-subtle last:border-0">
                 {c.pass
                   ? <CheckCircle size={16} className="text-emerald-500 mt-0.5 flex-shrink-0" />
                   : c.warn
@@ -522,7 +522,7 @@ export default function SubmitEvidence({ caseData, onBack, onComplete }) {
           )}
 
           <div className="flex gap-3">
-            <button onClick={() => setStep(2)} className="px-5 py-2.5 border border-gray-200 text-sm font-semibold rounded-xl hover:bg-gray-50 transition-all">
+            <button onClick={() => setStep(2)} className="px-5 py-2.5 border border-border-subtle text-sm font-semibold rounded-xl hover:bg-surface-low transition-all">
               ← Back
             </button>
             <button
