@@ -93,6 +93,7 @@ async def list_investigations(
     limit: int = 50,
     user: dict = Depends(require_role("DFO", "SCHEME_VERIFIER", "AUDIT")),
 ):
+    district = user.get("district")
     # Try dedicated investigations collection first
     col = _col("investigations")
     if col is not None:
