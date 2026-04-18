@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { Shield, KeyRound, ChevronRight, Users, Building2, Map, ClipboardCheck, UserCheck } from 'lucide-react'
 
 const ROLES = [
@@ -59,7 +58,7 @@ export default function Login({ onLogin }) {
   const [selectedRole, setSelectedRole] = useState('DFO')
   const [key, setKey] = useState('')
   const [error, setError] = useState('')
-  const navigate = useNavigate()
+
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -68,27 +67,7 @@ export default function Login({ onLogin }) {
       return
     }
     setError('')
-    
-    // Map upstream role ID to our app's role ID and path
-    let appRole = 'dfo'
-    let path = '/dfo'
-    
-    if (selectedRole === 'STATE_ADMIN') {
-      appRole = 'state_admin'
-      path = '/state-admin'
-    } else if (selectedRole === 'AUDIT_OFFICER') {
-      appRole = 'audit_officer'
-      path = '/audit-officer'
-    } else if (selectedRole === 'SCHEME_VERIFIER') {
-      appRole = 'scheme_verifier'
-      path = '/scheme-verifier'
-    } else if (selectedRole === 'USER') {
-      appRole = 'general_user'
-      path = '/user'
-    }
-
-    onLogin(appRole)
-    navigate(path)
+    onLogin(selectedRole)
   }
 
   const role = ROLES.find(r => r.id === selectedRole)

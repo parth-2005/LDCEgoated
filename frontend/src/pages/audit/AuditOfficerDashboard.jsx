@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { FileCheck, MapPin, BrainCircuit, CheckCircle, XCircle, Send } from 'lucide-react'
-import { mockInvestigations } from '../api/mockData'
+import { mockInvestigations } from '../../mock/mockData'
 
 export default function AuditOfficerDashboard() {
   const [cases, setCases] = useState([])

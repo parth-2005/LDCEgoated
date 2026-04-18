@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { api } from '../api'
+import { api } from '../../api'
 import { Printer, Download } from 'lucide-react'
 
 export default function AuditReport() {

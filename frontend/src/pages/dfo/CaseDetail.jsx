@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
-import { api } from '../api'
-import { LeakageBadge } from '../components/RiskBadge'
+import { api } from '../../api'
+import { LeakageBadge } from '../../components/RiskBadge'
 import { Sparkles, Loader2 } from 'lucide-react'
 
 export default function CaseDetail({ flagId }) {

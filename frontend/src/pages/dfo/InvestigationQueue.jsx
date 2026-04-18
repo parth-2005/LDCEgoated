@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { api } from '../api'
-import { RiskBadge, LeakageBadge } from '../components/RiskBadge'
+import { api } from '../../api'
+import { RiskBadge, LeakageBadge } from '../../components/RiskBadge'
 
 export default function InvestigationQueue() {
   const [flags, setFlags] = useState([])
