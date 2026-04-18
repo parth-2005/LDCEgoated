@@ -133,7 +133,13 @@ async def get_stats():
     for flag in flags:
         by_type[flag["leakage_type"]] += 1
         by_district[flag["district"]] += 1
-        by_scheme[flag["scheme"]] += 1
+        scheme_value = flag["scheme"]
+        if isinstance(scheme_value, str) and "+" in scheme_value:
+            for scheme_code in (part.strip() for part in scheme_value.split("+")):
+                if scheme_code:
+                    by_scheme[scheme_code] += 1
+        elif scheme_value:
+            by_scheme[scheme_value] += 1
         total_at_risk += flag.get("payment_amount", 0) or 0
 
     return {

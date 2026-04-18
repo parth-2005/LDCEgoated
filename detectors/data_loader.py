@@ -23,6 +23,13 @@ def _read_json(path: Path) -> List[dict]:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def _load_or_mock(filename: str, mock_data: List[dict]) -> List[dict]:
+    try:
+        return _read_json(DATA_PATH / filename)
+    except FileNotFoundError:
+        return mock_data
+
+
 def load_all() -> Dict[str, Any]:
     """Load all datasets once and build O(1) lookup indexes."""
     if _cache:
@@ -32,16 +39,10 @@ def load_all() -> Dict[str, Any]:
         if _cache:
             return _cache
 
-        try:
-            beneficiaries = _read_json(DATA_PATH / "beneficiaries.json")
-            udise = _read_json(DATA_PATH / "udise_records.json")
-            payments = _read_json(DATA_PATH / "payment_ledger.json")
-            death_registry = _read_json(DATA_PATH / "death_registry.json")
-        except FileNotFoundError:
-            beneficiaries = MOCK_BENEFICIARIES
-            udise = MOCK_UDISE
-            payments = MOCK_PAYMENTS
-            death_registry = MOCK_DEATH_REGISTRY
+        beneficiaries = _load_or_mock("beneficiaries.json", MOCK_BENEFICIARIES)
+        udise = _load_or_mock("udise_records.json", MOCK_UDISE)
+        payments = _load_or_mock("payment_ledger.json", MOCK_PAYMENTS)
+        death_registry = _load_or_mock("death_registry.json", MOCK_DEATH_REGISTRY)
 
         _cache["beneficiaries"] = beneficiaries
         _cache["udise"] = udise

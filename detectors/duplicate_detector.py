@@ -1,11 +1,13 @@
 from collections import defaultdict
+from urllib.error import URLError, HTTPError
+from urllib.request import Request, urlopen
+import json
+import os
 from typing import Any, Dict, List, Optional
-
-import requests
 
 from .data_loader import load_all
 
-NORMALIZER_URL = "http://localhost:8000/api/normalize-names"
+NORMALIZER_URL = os.getenv("NORMALIZER_URL", "http://localhost:8000/api/normalize-names")
 REQUEST_TIMEOUT_SECONDS = 1.5
 FUZZY_DISTANCE_THRESHOLD = 2
 
@@ -40,19 +42,20 @@ def normalize_name_local(name: str) -> str:
 def _normalize_names_remote(names: List[str]) -> Optional[Dict[str, str]]:
     """Try Person 3 name normalizer endpoint; return None on any failure."""
     try:
-        response = requests.post(
+        request = Request(
             NORMALIZER_URL,
-            json={"names": names},
-            timeout=REQUEST_TIMEOUT_SECONDS,
+            data=json.dumps({"names": names}).encode("utf-8"),
+            headers={"Content-Type": "application/json"},
+            method="POST",
         )
-        response.raise_for_status()
-        payload = response.json()
+        with urlopen(request, timeout=REQUEST_TIMEOUT_SECONDS) as response:
+            payload = json.loads(response.read().decode("utf-8"))
         if isinstance(payload, dict) and isinstance(payload.get("normalized"), dict):
             return payload["normalized"]
         if isinstance(payload, dict):
             return {k: v for k, v in payload.items() if isinstance(v, str)}
         return None
-    except Exception:
+    except (HTTPError, URLError, TimeoutError, ValueError, OSError):
         return None
 
 
@@ -109,133 +112,125 @@ def detect_duplicates() -> List[Dict[str, Any]]:
                 }
             )
 
-    # Method B1: exact bank account match inside district
-    by_district: Dict[str, List[dict]] = defaultdict(list)
+    # Method B1: exact bank account match across the dataset.
+    by_bank: Dict[str, List[dict]] = defaultdict(list)
     for ben in beneficiaries:
-        district = ben.get("district")
-        if district:
-            by_district[district].append(ben)
+        bank_hash = ben.get("bank_account_hash")
+        if bank_hash:
+            by_bank[bank_hash].append(ben)
 
-    for district, bens in by_district.items():
-        by_bank: Dict[str, List[dict]] = defaultdict(list)
-        for ben in bens:
-            bank_hash = ben.get("bank_account_hash")
-            if bank_hash:
-                by_bank[bank_hash].append(ben)
-
-        for _, group in by_bank.items():
-            if len(group) <= 1:
+    for _, group in by_bank.items():
+        if len(group) <= 1:
+            continue
+        base = sorted(group, key=lambda x: x.get("beneficiary_id", ""))[0]
+        for dup in sorted(group, key=lambda x: x.get("beneficiary_id", ""))[1:]:
+            pair_key = tuple(
+                sorted([base.get("beneficiary_id", ""), dup.get("beneficiary_id", "")])
+            )
+            if pair_key in seen_pairs:
                 continue
-            base = sorted(group, key=lambda x: x.get("beneficiary_id", ""))[0]
-            for dup in sorted(group, key=lambda x: x.get("beneficiary_id", ""))[1:]:
+            seen_pairs.add(pair_key)
+
+            flags.append(
+                {
+                    "beneficiary_id": dup.get("beneficiary_id"),
+                    "beneficiary_name": dup.get("name", "Unknown"),
+                    "district": dup.get("district", "Unknown"),
+                    "scheme": "MULTI",
+                    "payment_id": None,
+                    "payment_amount": 0,
+                    "payment_date": None,
+                    "leakage_type": "DUPLICATE",
+                    "evidence_data": {
+                        "match_method": "BANK_ACCOUNT_EXACT",
+                        "primary_name": base.get("name"),
+                        "duplicate_name": dup.get("name"),
+                        "shared_bank_account": True,
+                    },
+                }
+            )
+
+    # Method B2: fuzzy name match across the dataset
+    all_names = [b.get("name", "") for b in beneficiaries]
+    remote_norm = _normalize_names_remote(all_names) or {}
+
+    normalized_entries = []
+    for ben in beneficiaries:
+        original_name = ben.get("name", "")
+        normalized_name = remote_norm.get(original_name) or normalize_name_local(original_name)
+        normalized_entries.append((ben, normalized_name))
+
+    # Bucket by leading character and length to reduce pairwise comparisons.
+    buckets: Dict[tuple, List[tuple]] = defaultdict(list)
+    for ben, norm in normalized_entries:
+        if not norm:
+            continue
+        key = (norm[0], len(norm))
+        buckets[key].append((ben, norm))
+
+    for (first_char, base_len), items in buckets.items():
+        candidate_keys = [
+            (first_char, base_len - 1),
+            (first_char, base_len),
+            (first_char, base_len + 1),
+            (first_char, base_len + 2),
+            (first_char, base_len - 2),
+        ]
+        candidates = []
+        for ckey in candidate_keys:
+            candidates.extend(buckets.get(ckey, []))
+
+        for i in range(len(items)):
+            b1, n1 = items[i]
+            for b2, n2 in candidates:
+                if b1.get("beneficiary_id") == b2.get("beneficiary_id"):
+                    continue
+
                 pair_key = tuple(
-                    sorted([base.get("beneficiary_id", ""), dup.get("beneficiary_id", "")])
+                    sorted(
+                        [
+                            b1.get("beneficiary_id", ""),
+                            b2.get("beneficiary_id", ""),
+                        ]
+                    )
                 )
                 if pair_key in seen_pairs:
                     continue
+
+                # Skip exact Aadhaar matches because Method A already handles them.
+                if b1.get("aadhaar_hash") and b1.get("aadhaar_hash") == b2.get("aadhaar_hash"):
+                    continue
+
+                if abs(len(n1) - len(n2)) > FUZZY_DISTANCE_THRESHOLD:
+                    continue
+
+                distance = levenshtein(n1, n2)
+                if distance > FUZZY_DISTANCE_THRESHOLD:
+                    continue
+
                 seen_pairs.add(pair_key)
 
+                dup = b2
+                primary = b1
                 flags.append(
                     {
                         "beneficiary_id": dup.get("beneficiary_id"),
                         "beneficiary_name": dup.get("name", "Unknown"),
-                        "district": district,
+                        "district": dup.get("district", "Unknown"),
                         "scheme": "MULTI",
                         "payment_id": None,
                         "payment_amount": 0,
                         "payment_date": None,
                         "leakage_type": "DUPLICATE",
                         "evidence_data": {
-                            "match_method": "BANK_ACCOUNT_EXACT",
-                            "primary_name": base.get("name"),
+                            "match_method": "FUZZY_NAME",
+                            "primary_name": primary.get("name"),
                             "duplicate_name": dup.get("name"),
-                            "shared_bank_account": True,
+                            "normalized_primary": n1,
+                            "normalized_duplicate": n2,
+                            "distance": distance,
                         },
                     }
                 )
-
-    # Method B2: fuzzy name match inside district
-    all_names = [b.get("name", "") for b in beneficiaries]
-    remote_norm = _normalize_names_remote(all_names) or {}
-
-    for district, bens in by_district.items():
-        normalized_entries = []
-        for ben in bens:
-            original_name = ben.get("name", "")
-            normalized_name = remote_norm.get(original_name) or normalize_name_local(original_name)
-            normalized_entries.append((ben, normalized_name))
-
-        # Bucket by leading character and length to reduce pairwise comparisons.
-        buckets: Dict[tuple, List[tuple]] = defaultdict(list)
-        for ben, norm in normalized_entries:
-            if not norm:
-                continue
-            key = (norm[0], len(norm))
-            buckets[key].append((ben, norm))
-
-        for (first_char, base_len), items in buckets.items():
-            candidate_keys = [
-                (first_char, base_len - 1),
-                (first_char, base_len),
-                (first_char, base_len + 1),
-                (first_char, base_len + 2),
-                (first_char, base_len - 2),
-            ]
-            candidates = []
-            for ckey in candidate_keys:
-                candidates.extend(buckets.get(ckey, []))
-
-            for i in range(len(items)):
-                b1, n1 = items[i]
-                for b2, n2 in candidates:
-                    if b1.get("beneficiary_id") == b2.get("beneficiary_id"):
-                        continue
-
-                    pair_key = tuple(
-                        sorted(
-                            [
-                                b1.get("beneficiary_id", ""),
-                                b2.get("beneficiary_id", ""),
-                            ]
-                        )
-                    )
-                    if pair_key in seen_pairs:
-                        continue
-
-                    # Skip exact Aadhaar matches because Method A already handles them.
-                    if b1.get("aadhaar_hash") and b1.get("aadhaar_hash") == b2.get("aadhaar_hash"):
-                        continue
-
-                    if abs(len(n1) - len(n2)) > FUZZY_DISTANCE_THRESHOLD:
-                        continue
-
-                    distance = levenshtein(n1, n2)
-                    if distance > FUZZY_DISTANCE_THRESHOLD:
-                        continue
-
-                    seen_pairs.add(pair_key)
-
-                    dup = b2
-                    primary = b1
-                    flags.append(
-                        {
-                            "beneficiary_id": dup.get("beneficiary_id"),
-                            "beneficiary_name": dup.get("name", "Unknown"),
-                            "district": district,
-                            "scheme": "MULTI",
-                            "payment_id": None,
-                            "payment_amount": 0,
-                            "payment_date": None,
-                            "leakage_type": "DUPLICATE",
-                            "evidence_data": {
-                                "match_method": "FUZZY_NAME",
-                                "primary_name": primary.get("name"),
-                                "duplicate_name": dup.get("name"),
-                                "normalized_primary": n1,
-                                "normalized_duplicate": n2,
-                                "distance": distance,
-                            },
-                        }
-                    )
 
     return flags
