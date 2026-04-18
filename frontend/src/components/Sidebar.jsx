@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Shield, LayoutDashboard, List, Map, FileText, Building2, AlertTriangle, BookOpen, BarChart3, LogOut } from 'lucide-react'
+import { Shield, LayoutDashboard, List, Map, FileText, Building2, AlertTriangle, BookOpen, BarChart3, LogOut, UserCircle, Bell } from 'lucide-react'
 
 const DFO_NAV = [
   { id: 'dashboard', label: 'Overview', icon: LayoutDashboard },
@@ -16,6 +16,10 @@ const ADMIN_NAV = [
   { id: 'rules-engine', label: 'Rules Engine', icon: BookOpen },
 ]
 
+const USER_NAV = [
+  { id: 'user-dashboard', label: 'My Dashboard', icon: UserCircle },
+]
+
 const NAV_BY_ROLE = {
   DFO: DFO_NAV,
   STATE_ADMIN: ADMIN_NAV,
@@ -27,9 +31,7 @@ const NAV_BY_ROLE = {
   SCHEME_VERIFIER: [
     { id: 'queue', label: 'My Open Cases', icon: List },
   ],
-  USER: [
-    { id: 'dashboard', label: 'My Dashboard', icon: LayoutDashboard },
-  ],
+  USER: USER_NAV,
 }
 
 const ROLE_LABELS = {
