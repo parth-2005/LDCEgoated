@@ -1,0 +1,38 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Sans+Gujarati:wght@400;600&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Public Sans", "Noto Sans Gujarati", sans-serif;
+  --font-data: "Inter", sans-serif;
+  --font-mono: "IBM Plex Mono", monospace;
+
+  --color-shell: #0D1B2A;
+  --color-workspace: #f8f9ff;
+  --color-surface-lowest: #ffffff;
+  --color-surface-low: #eef4ff;
+
+  --color-primary-override: #1B3A5B;
+  --color-secondary-override: #6B7280;
+  --color-tertiary-override: #F5A623;
+
+  --color-text-primary: #0f1c2c;
+  --color-text-secondary: #44474c;
+  --color-text-inverse: #ffffff;
+
+  --color-leakage-deceased: #E63946;
+  --color-leakage-duplicate: #F5A623;
+  --color-leakage-undrawn: #ffddb4;
+  --color-leakage-cross: #abc9f1;
+
+  --color-risk-critical: #E63946;
+  --color-risk-high: #F5A623;
+  --color-risk-medium: #EAB308;
+  --color-risk-low: #2DC653;
+}
+
+@layer base {
+  body {
+    @apply bg-shell text-text-primary font-sans antialiased;
+  }
+}

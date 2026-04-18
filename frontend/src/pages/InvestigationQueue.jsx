@@ -1,0 +1,110 @@
+import { useState, useEffect } from 'react'
+import { api } from '../api'
+import { RiskBadge, LeakageBadge } from '../components/RiskBadge'
+
+export default function InvestigationQueue({ onOpenCase }) {
+  const [flags, setFlags] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    api.getFlags().then(res => {
+      setFlags(res.data)
+      setLoading(false)
+    }).catch(e => {
+      console.error(e)
+      setLoading(false)
+    })
+  }, [])
+
+  const handleStatusChange = async (flagId, newStatus) => {
+    try {
+      await api.updateFlagStatus(flagId, newStatus)
+      setFlags(flags.map(f => f.flag_id === flagId ? { ...f, status: newStatus } : f))
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
+  const getRiskColor = (label) => {
+    if (label === 'CRITICAL') return 'bg-risk-critical'
+    if (label === 'HIGH') return 'bg-risk-high'
+    if (label === 'MEDIUM') return 'bg-risk-medium'
+    return 'bg-risk-low'
+  }
+
+  return (
+    <div className="p-8">
+      <h1 className="text-3xl font-bold font-sans text-text-primary tracking-tight mb-6">Investigation Queue</h1>
+      
+      <div className="bg-surface-lowest rounded-lg shadow-sm overflow-hidden">
+        {loading ? (
+          <div className="p-8 text-center text-text-secondary font-data">Loading flags...</div>
+        ) : (
+          <table className="w-full text-left">
+            <thead>
+              <tr className="bg-surface text-text-secondary text-sm font-bold uppercase tracking-widest font-sans">
+                <th className="p-4 font-bold">Flag ID</th>
+                <th className="p-4 font-bold">Beneficiary</th>
+                <th className="p-4 font-bold">District / Scheme</th>
+                <th className="p-4 font-bold">Leakage Type</th>
+                <th className="p-4 font-bold">Amount</th>
+                <th className="p-4 font-bold">Risk Score</th>
+                <th className="p-4 font-bold">Status</th>
+                <th className="p-4 font-bold">Action</th>
+              </tr>
+            </thead>
+            <tbody className="font-data text-sm">
+              {flags.map((flag, idx) => (
+                <tr key={flag.flag_id} className={`${idx % 2 === 0 ? 'bg-surface-lowest' : 'bg-surface-low'}`}>
+                  <td className="p-4 font-mono font-medium text-text-secondary">{flag.flag_id}</td>
+                  <td className="p-4 font-sans font-bold text-text-primary">{flag.beneficiary_name}</td>
+                  <td className="p-4">
+                    <div className="text-text-primary">{flag.district}</div>
+                    <div className="text-xs text-text-secondary">{flag.scheme}</div>
+                  </td>
+                  <td className="p-4"><LeakageBadge type={flag.leakage_type} /></td>
+                  <td className="p-4 font-mono font-medium">₹{flag.payment_amount?.toLocaleString('en-IN')}</td>
+                  <td className="p-4">
+                    <div className="flex flex-col gap-1">
+                      <span className="text-xs font-bold font-sans">{flag.risk_score}/100</span>
+                      <div className="w-[100px] bg-gray-200 h-1.5 rounded-full overflow-hidden">
+                        <div 
+                          className={`h-full ${getRiskColor(flag.risk_label)}`} 
+                          style={{ width: `${flag.risk_score}%` }} 
+                        />
+                      </div>
+                    </div>
+                  </td>
+                  <td className="p-4">
+                    <select 
+                      value={flag.status || 'OPEN'} 
+                      onChange={(e) => handleStatusChange(flag.flag_id, e.target.value)}
+                      className="bg-white border border-gray-300 text-text-primary text-xs rounded p-1 font-sans font-medium outline-none focus:ring-2 focus:ring-primary-override"
+                    >
+                      <option value="OPEN">OPEN</option>
+                      <option value="ASSIGNED">ASSIGNED</option>
+                      <option value="RESOLVED">RESOLVED</option>
+                    </select>
+                  </td>
+                  <td className="p-4">
+                    <button 
+                      onClick={() => onOpenCase(flag.flag_id)} 
+                      className="text-primary-override hover:underline font-sans font-semibold text-sm"
+                    >
+                      Review
+                    </button>
+                  </td>
+                </tr>
+              ))}
+              {flags.length === 0 && (
+                <tr>
+                  <td colSpan="8" className="p-8 text-center text-text-secondary">No flags found. Run an analysis first.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        )}
+      </div>
+    </div>
+  )
+}
