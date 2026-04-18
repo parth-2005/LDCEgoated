@@ -46,6 +46,7 @@ def _try_load_from_mongo() -> bool:
             get_deaths_collection,
             get_payments_collection,
             get_students_collection,
+            get_udise_collection,
         )
 
         students_raw = list(get_students_collection().find({}, {"_id": 0}))
@@ -91,6 +92,11 @@ def _try_load_from_mongo() -> bool:
                         "academic_year": u.get("academic_year", "2024-25"),
                     }
                 )
+
+        # Some seed paths store UDISE as a separate collection instead of
+        # embedding under each student record.
+        if not udise:
+            udise = list(get_udise_collection().find({}, {"_id": 0}))
 
         # Map payments back to the legacy shape (amount key stays "amount")
         payments: List[dict] = []

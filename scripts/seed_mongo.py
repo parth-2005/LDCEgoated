@@ -29,7 +29,7 @@ DATA_DIR = Path(__file__).parent.parent / "data"
 # ─── CLI ──────────────────────────────────────────────────────────────────────
 parser = argparse.ArgumentParser(description="Seed EduGuard JSON data → MongoDB Atlas")
 parser.add_argument("--uri", default=None, help="MongoDB Atlas connection string (overrides .env)")
-parser.add_argument("--db", default="eduguard_dbt", help="Database name (default: eduguard_dbt)")
+parser.add_argument("--db", default=None, help="Database name (default: MONGO_DB_NAME from .env, else EduGuard)")
 parser.add_argument("--drop", action="store_true", default=True, help="Drop collections before inserting (default: True)")
 args = parser.parse_args()
 
@@ -43,6 +43,9 @@ if not args.uri:
                 k, v = line.split("=", 1)
                 os.environ.setdefault(k.strip(), v.strip())
     args.uri = os.getenv("MONGO_URI")
+
+if not args.db:
+    args.db = os.getenv("MONGO_DB_NAME", "EduGuard")
 
 if not args.uri:
     print("❌  No MONGO_URI found.")
