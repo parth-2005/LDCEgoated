@@ -13,6 +13,7 @@ import Heatmap from './pages/dfo/Heatmap'
 import AuditReport from './pages/dfo/AuditReport'
 import MiddlemenList from './pages/dfo/MiddlemenList'
 import FlaggedInstitutions from './pages/dfo/FlaggedInstitutions'
+import InstitutionReports from './pages/dfo/InstitutionReports'
 
 // State Admin
 import GujaratHeatmap from './pages/admin/GujaratHeatmap'
@@ -26,6 +27,7 @@ import CompleteProfile from './pages/user/CompleteProfile'
 // Audit Officer
 import AuditOfficerDashboard from './pages/audit/AuditOfficerDashboard'
 import AuditVerifierQueue from './pages/audit/AuditVerifierQueue'
+import AuditMiddlemen from './pages/audit/AuditMiddlemen'
 
 // Scheme Verifier
 import SchemeVerifierDashboard from './pages/verifier/SchemeVerifierDashboard'
@@ -117,8 +119,8 @@ export default function App() {
         <Route path="/dfo/case/:flagId" element={<CaseDetail />} />
         <Route path="/dfo/heatmap" element={<Heatmap />} />
         <Route path="/dfo/report" element={<AuditReport />} />
-        <Route path="/dfo/middlemen" element={<MiddlemenList />} />
         <Route path="/dfo/flagged-institutions" element={<FlaggedInstitutions />} />
+        <Route path="/dfo/institution-reports" element={<InstitutionReports />} />
 
         {/* State Admin */}
         <Route path="/admin/gujarat-map" element={<GujaratHeatmap />} />
@@ -129,6 +131,7 @@ export default function App() {
         <Route path="/audit/overview" element={<AuditOfficerDashboard />} />
         <Route path="/audit/report" element={<AuditReport />} />
         <Route path="/audit/verifier-queue" element={<AuditVerifierQueue />} />
+        <Route path="/audit/middlemen" element={<AuditMiddlemen />} />
 
         {/* Scheme Verifier */}
         <Route path="/verifier/my-cases" element={<SchemeVerifierDashboard />} />

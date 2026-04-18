@@ -266,6 +266,27 @@ export async function getAuditHistory() {
   return safe(() => client.get('/api/audit/all'), { total: 0, reviewed: [] })
 }
 
+export async function getAuditInstitutions() {
+  // Uses the DFO institutions endpoint (now also accessible to AUDIT role)
+  return safe(() => client.get('/api/dfo/institutions'), [])
+}
+
+export async function submitInstitutionReport(payload) {
+  return safe(() => client.post('/api/audit/institution-report', payload), null)
+}
+
+export async function getMyInstitutionReports() {
+  return safe(() => client.get('/api/audit/institution-reports/for-me'), { total: 0, reports: [] })
+}
+
+export async function getDFOInstitutionReports() {
+  return safe(() => client.get('/api/audit/institution-reports/for-dfo'), { total: 0, reports: [] })
+}
+
+export async function decideDFOReport(reportId, decision, notes = '') {
+  return safe(() => client.post(`/api/audit/institution-report/${reportId}/decide`, { decision, notes }), null)
+}
+
 // ── USER ──────────────────────────────────────────────────────────────────────
 
 export async function getUser() {

@@ -30,6 +30,7 @@ const gu = {
     flaggedInstitutions: 'ફ્લેગ થયેલ સંસ્થાઓ',
     riskHeatmap: 'જોખમ હીટમેપ',
     auditReport: 'ઓડિટ અહેવાલ',
+    auditReports: 'ઓડિટ અહેવાલો',
     gujaratHeatmap: 'ગુજરાત હીટમેપ',
     districtOverview: 'જિલ્લા ઝાંખી',
     rulesEngine: 'નિયમ એન્જિન',

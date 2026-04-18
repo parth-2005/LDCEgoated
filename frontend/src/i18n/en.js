@@ -47,6 +47,7 @@ const en = {
     flaggedInstitutions: 'Flagged Institutions',
     riskHeatmap: 'Risk Heatmap',
     auditReport: 'Audit Report',
+    auditReports: 'Audit Reports',
     gujaratHeatmap: 'Gujarat Heatmap',
     districtOverview: 'District Overview',
     rulesEngine: 'Rules Engine',

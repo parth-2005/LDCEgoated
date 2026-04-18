@@ -7,7 +7,7 @@ import { useLanguage } from '../i18n/LanguageContext'
 const DFO_NAV = [
   { path: '/dfo/dashboard',            label: 'Overview',            labelKey: 'sidebar.overview',         icon: LayoutDashboard },
   { path: '/dfo/queue',                label: 'Investigation Queue', labelKey: 'sidebar.investigationQueue', icon: List },
-  { path: '/dfo/middlemen',            label: 'Middlemen',           labelKey: 'sidebar.middlemen',        icon: Building2 },
+  { path: '/dfo/institution-reports',  label: 'Audit Reports',       labelKey: 'sidebar.auditReports',      icon: FileText },
   { path: '/dfo/flagged-institutions', label: 'Flagged Institutions',labelKey: 'sidebar.flaggedInstitutions', icon: AlertTriangle },
   { path: '/dfo/heatmap',              label: 'Risk Heatmap',        labelKey: 'sidebar.riskHeatmap',      icon: Map },
 ]
@@ -20,6 +20,7 @@ const ADMIN_NAV = [
 
 const AUDIT_NAV = [
   { path: '/audit/overview',       label: 'Overview',          labelKey: 'sidebar.overview',        icon: LayoutDashboard },
+  { path: '/audit/middlemen',      label: 'Middlemen',         labelKey: 'sidebar.middlemen',       icon: Building2 },
   { path: '/audit/report',         label: 'Generate Report',   labelKey: 'sidebar.generateReport',  icon: FileText },
   { path: '/audit/verifier-queue', label: 'Verifier Reports',  labelKey: 'sidebar.verifierReports', icon: List },
 ]

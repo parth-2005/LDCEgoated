@@ -152,7 +152,7 @@ async def assign_investigation(
 @router.get("/institutions")
 async def get_institutions(
     flagged_only: bool = False,
-    user: dict = Depends(require_role("DFO")),
+    user: dict = Depends(require_role("DFO", "AUDIT")),
 ):
     """Institutions in the DFO's district only."""
     district = user.get("district")
@@ -163,6 +163,16 @@ async def get_institutions(
     if flagged_only:
         query["risk_profile.is_flagged"] = True
     docs = list(col.find(query, {"_id": 0}))
+    # If DB has no institutions for this district, use fallback data (adapt district)
+    if not docs:
+        import copy
+        fallback = copy.deepcopy(FALLBACK_INSTITUTIONS)
+        if district:
+            for inst in fallback:
+                inst["district"] = district
+        if flagged_only:
+            fallback = [i for i in fallback if i["risk_profile"]["is_flagged"]]
+        return fallback
     return docs
 
 
