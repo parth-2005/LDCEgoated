@@ -24,6 +24,11 @@ try:
 except Exception:  # pragma: no cover
     generate_report = None
 
+try:
+    from ai_layer.endpoints import router as ai_router
+except Exception:  # pragma: no cover
+    ai_router = None
+
 app = FastAPI(title="EduGuard DBT API")
 
 app.add_middleware(
@@ -32,6 +37,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Include AI layer endpoints (Person 3)
+if ai_router:
+    app.include_router(ai_router)
 
 _flag_store = {}
 

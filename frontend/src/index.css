@@ -29,10 +29,25 @@
   --color-risk-high: #F5A623;
   --color-risk-medium: #EAB308;
   --color-risk-low: #2DC653;
+
+  /* Role-specific accents */
+  --color-dfo-accent: #1B3A5B;
+  --color-admin-accent: #5B21B6;
+  --color-admin-shell: #1a0533;
 }
 
 @layer base {
   body {
     @apply bg-shell text-text-primary font-sans antialiased;
   }
+}
+
+/* Smooth map district hover */
+.district-path {
+  transition: opacity 0.15s ease, filter 0.15s ease;
+  cursor: pointer;
+}
+.district-path:hover {
+  opacity: 0.85;
+  filter: brightness(1.15);
 }
