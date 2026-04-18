@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import {
   ArrowLeft, UploadCloud, MapPin, Camera, CheckCircle, XCircle,
   AlertTriangle, Loader2, FileImage, User, Calendar, Clock,
@@ -109,7 +110,13 @@ function verifyEvidence({ photoFile, gps, notes, beneficiaryPresent, exifDate })
 }
 
 // ─── Main Component ──────────────────────────────────────────────────────────
-export default function SubmitEvidence({ caseData, onBack, onComplete }) {
+export default function SubmitEvidence() {
+  const location = useLocation()
+  const navigate = useNavigate()
+  const caseData = location.state?.caseData
+  const onBack = () => navigate('/verifier/my-cases')
+  const onComplete = () => navigate('/verifier/my-cases')
+
   const [step, setStep]     = useState(0)
   const [photoFile, setPhotoFile]   = useState(null)
   const [photoPreview, setPhotoPreview] = useState(null)

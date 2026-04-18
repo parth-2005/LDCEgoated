@@ -38,15 +38,16 @@ def _load_detectors():
 
 def _get_db():
     try:
-        from database import get_db, is_mongo_available
-        return get_db() if is_mongo_available() else None
-    except Exception:
+        from database import get_db
+        return get_db()
+    except Exception as e:
+        print(f"  [analysis] MongoDB unavailable: {e}")
         return None
 
 
 def _col(name: str):
     db = _get_db()
-    return db[name] if db else None
+    return db[name] if db is not None else None
 
 
 def _fallback_evidence(flag: dict) -> str:

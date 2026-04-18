@@ -1,6 +1,8 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Shield, KeyRound, ChevronRight, Users, Building2, Map, ClipboardCheck, UserCheck, Mail, Loader2, AlertCircle } from 'lucide-react'
 import { login } from '../api'
+import { useAuth, DEFAULT_PATHS } from '../contexts/AuthContext'
 
 const ROLES = [
   {
@@ -66,7 +68,9 @@ const DEMO_CREDS = {
   USER:           { email: 'user@eduguard.in',     password: 'user@1234' },
 }
 
-export default function Login({ onLogin }) {
+export default function Login() {
+  const navigate = useNavigate()
+  const { login: authLogin } = useAuth()
   const [selectedRole, setSelectedRole] = useState('DFO')
   const [email, setEmail]     = useState('dfo@eduguard.in')
   const [password, setPassword] = useState('dfo@1234')
@@ -102,7 +106,9 @@ export default function Login({ onLogin }) {
         SCHEME_VERIFIER:'SCHEME_VERIFIER',
         USER:           'USER',
       }
-      onLogin(backendToFrontend[data.role] || data.role, data)
+      const frontendRole = backendToFrontend[data.role] || data.role
+      authLogin(frontendRole, data)
+      navigate(DEFAULT_PATHS[frontendRole] || '/dfo/dashboard', { replace: true })
     } catch (err) {
       const msg = err?.response?.data?.detail || 'Login failed. Check credentials.'
       setError(msg)

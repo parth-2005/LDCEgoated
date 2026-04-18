@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom'
 import { Shield, ArrowRight, BarChart3, Map, CheckCircle, BookOpen, Users } from 'lucide-react'
 
 const FEATURES = [
@@ -15,7 +16,8 @@ const ROLES = [
   { label: 'Audit Officer', desc: 'Report generation, verifier report review, and DFO forwarding.', color: 'bg-emerald-700' },
 ]
 
-export default function LandingPage({ onEnter }) {
+export default function LandingPage() {
+  const navigate = useNavigate()
   return (
     <div className="min-h-screen bg-surface-lowest font-sans text-text-primary flex flex-col">
       {/* Top Banner (State Colors) */}
@@ -39,7 +41,7 @@ export default function LandingPage({ onEnter }) {
             Department of Education
           </span>
           <button
-            onClick={onEnter}
+            onClick={() => navigate('/login')}
             className="flex items-center gap-2 px-5 py-2.5 bg-primary-override hover:bg-blue-900 text-white text-sm font-semibold rounded transition-colors"
           >
             Access Portal <ArrowRight size={16} />
@@ -58,7 +60,7 @@ export default function LandingPage({ onEnter }) {
           </p>
           <div className="flex items-center justify-center gap-4">
             <button
-              onClick={onEnter}
+              onClick={() => navigate('/login')}
               className="flex items-center gap-2 px-8 py-3.5 bg-primary-override hover:bg-blue-900 text-white font-semibold rounded transition-colors text-base shadow-sm hover:shadow-md"
             >
               Login to Dashboard <ArrowRight size={18} />

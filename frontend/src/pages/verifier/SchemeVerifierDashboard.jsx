@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { MapPin, FileImage, List, Clock, AlertTriangle, CheckCircle, ChevronRight, Loader2 } from 'lucide-react'
 import { getInvestigations } from '../../api'
 
@@ -16,7 +17,8 @@ const PRIORITY = {
   CROSS_SCHEME: { label: 'Medium', color: 'bg-blue-100 text-blue-700 border-blue-200' },
 }
 
-export default function SchemeVerifierDashboard({ onSubmitEvidence }) {
+export default function SchemeVerifierDashboard() {
+  const navigate = useNavigate()
   const [cases, setCases] = useState([])
   const [submitted, setSubmitted] = useState(new Set())
 
@@ -99,7 +101,7 @@ export default function SchemeVerifierDashboard({ onSubmitEvidence }) {
                   </div>
 
                   <button
-                    onClick={() => onSubmitEvidence(c)}
+                    onClick={() => navigate('/verifier/submit-evidence', { state: { caseData: c } })}
                     className="flex items-center gap-2 px-4 py-2.5 bg-primary-override text-white text-xs font-bold rounded-lg hover:bg-blue-900 transition-colors shadow-sm whitespace-nowrap"
                   >
                     <FileImage size={14} /> Submit Evidence <ChevronRight size={13} />

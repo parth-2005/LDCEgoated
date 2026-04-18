@@ -9,7 +9,8 @@ export default function AuditOfficerDashboard() {
 
   useEffect(() => {
     getAuditPending().then(data => {
-      setCases(Array.isArray(data) ? data : [])
+      const list = data?.pending || (Array.isArray(data) ? data : [])
+      setCases(list)
       setLoading(false)
     })
   }, [])

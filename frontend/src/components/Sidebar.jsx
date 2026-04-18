@@ -1,32 +1,33 @@
+import { useLocation, useNavigate } from 'react-router-dom'
 import { Shield, LayoutDashboard, List, Map, FileText, Building2, AlertTriangle, BookOpen, BarChart3, LogOut, UserCircle } from 'lucide-react'
 
 const DFO_NAV = [
-  { id: 'dashboard',            label: 'Overview',            icon: LayoutDashboard },
-  { id: 'queue',                label: 'Investigation Queue', icon: List },
-  { id: 'middlemen',            label: 'Middlemen',           icon: Building2 },
-  { id: 'flagged-institutions', label: 'Flagged Institutions',icon: AlertTriangle },
-  { id: 'heatmap',              label: 'Risk Heatmap',        icon: Map },
-  { id: 'report',               label: 'Audit Report',        icon: FileText },
+  { path: '/dfo/dashboard',            label: 'Overview',            icon: LayoutDashboard },
+  { path: '/dfo/queue',                label: 'Investigation Queue', icon: List },
+  { path: '/dfo/middlemen',            label: 'Middlemen',           icon: Building2 },
+  { path: '/dfo/flagged-institutions', label: 'Flagged Institutions',icon: AlertTriangle },
+  { path: '/dfo/heatmap',              label: 'Risk Heatmap',        icon: Map },
+  { path: '/dfo/report',               label: 'Audit Report',        icon: FileText },
 ]
 
 const ADMIN_NAV = [
-  { id: 'gujarat-map',      label: 'Gujarat Heatmap',  icon: Map },
-  { id: 'district-overview',label: 'District Overview', icon: BarChart3 },
-  { id: 'rules-engine',     label: 'Rules Engine',     icon: BookOpen },
+  { path: '/admin/gujarat-map',      label: 'Gujarat Heatmap',  icon: Map },
+  { path: '/admin/district-overview',label: 'District Overview', icon: BarChart3 },
+  { path: '/admin/rules-engine',     label: 'Rules Engine',     icon: BookOpen },
 ]
 
 const AUDIT_NAV = [
-  { id: 'audit-overview', label: 'Overview',          icon: LayoutDashboard },
-  { id: 'report',         label: 'Generate Report',   icon: FileText },
-  { id: 'verifier-queue', label: 'Verifier Reports',  icon: List },
+  { path: '/audit/overview',       label: 'Overview',          icon: LayoutDashboard },
+  { path: '/audit/report',         label: 'Generate Report',   icon: FileText },
+  { path: '/audit/verifier-queue', label: 'Verifier Reports',  icon: List },
 ]
 
 const VERIFIER_NAV = [
-  { id: 'my-cases',       label: 'My Open Cases',     icon: List },
+  { path: '/verifier/my-cases',    label: 'My Open Cases',     icon: List },
 ]
 
 const USER_NAV = [
-  { id: 'user-dashboard', label: 'My Dashboard',      icon: UserCircle },
+  { path: '/user/dashboard',      label: 'My Dashboard',      icon: UserCircle },
 ]
 
 const NAV_BY_ROLE = {
@@ -69,7 +70,9 @@ const ACTIVE_CLASS = {
   USER:            'border-gray-400 text-white',
 }
 
-export default function Sidebar({ activePage, onNavigate, role, onLogout }) {
+export default function Sidebar({ role, onLogout }) {
+  const location = useLocation()
+  const navigate = useNavigate()
   const navItems    = NAV_BY_ROLE[role] || DFO_NAV
   const accentDot   = ROLE_ACCENT[role]  || 'bg-blue-500'
   const sidebarBg   = SIDEBAR_BG[role]   || 'bg-shell'
@@ -98,11 +101,11 @@ export default function Sidebar({ activePage, onNavigate, role, onLogout }) {
       <nav className="flex-1 px-3 mt-2 space-y-0.5 overflow-y-auto">
         {navItems.map(item => {
           const Icon   = item.icon
-          const active = activePage === item.id
+          const active = location.pathname === item.path || location.pathname.startsWith(item.path + '/')
           return (
             <button
-              key={item.id}
-              onClick={() => onNavigate(item.id)}
+              key={item.path}
+              onClick={() => navigate(item.path)}
               className={`w-full flex items-center gap-3 px-3 py-2.5 text-sm transition-all rounded-md font-sans border-l-2
                 ${active
                   ? `bg-surface-lowest/10 ${activeClass} border-l-2`

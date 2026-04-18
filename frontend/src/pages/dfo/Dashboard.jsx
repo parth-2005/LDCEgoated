@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts'
 import { RiskBadge, LeakageBadge } from '../../components/RiskBadge'
 import { Play, RefreshCw, FileText, AlertCircle } from 'lucide-react'
@@ -6,7 +7,9 @@ import { api } from '../../api'
 
 const COLORS = { DECEASED: '#E63946', DUPLICATE: '#F5A623', UNDRAWN: '#EAB308', CROSS_SCHEME: '#abc9f1' }
 
-export default function Dashboard({ onOpenCase, analysisData, setAnalysisData }) {
+export default function Dashboard() {
+  const navigate = useNavigate()
+  const [analysisData, setAnalysisData] = useState(null)
   const [loading, setLoading] = useState(false)
   const [stats, setStats] = useState(null)
   const [error, setError] = useState(null)

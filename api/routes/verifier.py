@@ -18,15 +18,16 @@ router = APIRouter(prefix="/api/verifier", tags=["verifier"])
 
 def _get_db():
     try:
-        from database import get_db, is_mongo_available
-        return get_db() if is_mongo_available() else None
-    except Exception:
+        from database import get_db
+        return get_db()
+    except Exception as e:
+        print(f"  [verifier] MongoDB unavailable: {e}")
         return None
 
 
 def _col(name: str):
     db = _get_db()
-    return db[name] if db else None
+    return db[name] if db is not None else None
 
 
 # ── Pydantic models ───────────────────────────────────────────────────────────
@@ -46,7 +47,7 @@ def _find_case(case_id: str, verifier_id: str):
     """Finds a case in mongo (investigations or flags) assigned to this verifier."""
     for cname in ["investigations", "flags"]:
         col = _col(cname)
-        if col:
+        if col is not None:
             try:
                 doc = col.find_one(
                     {"$or": [{"case_id": case_id}, {"flag_id": case_id}],
@@ -70,7 +71,7 @@ async def my_cases(user: dict = Depends(require_role("SCHEME_VERIFIER"))):
 
     for cname in ["investigations", "flags"]:
         col = _col(cname)
-        if col:
+        if col is not None:
             try:
                 docs = list(col.find(
                     {"assigned_verifier_id": verifier_id},
@@ -143,7 +144,7 @@ async def submit_evidence(
 
     for cname in ["investigations", "flags"]:
         col = _col(cname)
-        if col:
+        if col is not None:
             try:
                 col.update_one(
                     {"$or": [{"case_id": case_id}, {"flag_id": case_id}]},

@@ -37,15 +37,16 @@ def _load_json(filename: str, default=None):
 
 def _get_db():
     try:
-        from database import get_db, is_mongo_available
-        return get_db() if is_mongo_available() else None
-    except Exception:
+        from database import get_db
+        return get_db()
+    except Exception as e:
+        print(f"  [dfo] MongoDB unavailable: {e}")
         return None
 
 
 def _col(name: str):
     db = _get_db()
-    return db[name] if db else None
+    return db[name] if db is not None else None
 
 
 # ── Fallback data ─────────────────────────────────────────────────────────────
@@ -65,14 +66,32 @@ async def dfo_dashboard(user: dict = Depends(require_role("DFO"))):
     """DFO dashboard — aggregated KPIs from the flag store + beneficiary counts."""
     flags_col = _col("flags")
     flags: list = []
-    if flags_col:
+    if flags_col is not None:
         try:
             flags = list(flags_col.find({}, {"_id": 0}))
         except Exception:
             pass
 
-    beneficiaries = _load_json("beneficiaries.json")
-    payments      = _load_json("payment_ledger.json")
+    # Try MongoDB first for beneficiary / payment counts
+    ben_col = _col("beneficiaries")
+    pay_col = _col("payment_ledger")
+    total_ben = 0
+    total_pay = 0
+    if ben_col is not None:
+        try:
+            total_ben = ben_col.count_documents({})
+        except Exception:
+            pass
+    if pay_col is not None:
+        try:
+            total_pay = pay_col.count_documents({})
+        except Exception:
+            pass
+    # Fallback to JSON if MongoDB returned 0
+    if total_ben == 0:
+        total_ben = len(_load_json("beneficiaries.json"))
+    if total_pay == 0:
+        total_pay = len(_load_json("payment_ledger.json"))
 
     total_at_risk = sum(f.get("payment_amount", 0) or 0 for f in flags)
     by_type       = defaultdict(int)
@@ -83,8 +102,8 @@ async def dfo_dashboard(user: dict = Depends(require_role("DFO"))):
 
     return {
         "officer":          {"id": user["sub"], "name": user["name"], "district": user.get("district")},
-        "total_beneficiaries": len(beneficiaries),
-        "total_payments":   len(payments),
+        "total_beneficiaries": total_ben,
+        "total_payments":   total_pay,
         "total_flags":      len(flags),
         "total_at_risk":    total_at_risk,
         "flags_by_type":    dict(by_type),
@@ -101,7 +120,7 @@ async def list_investigations(
     leakage_type: Optional[str] = Query(None),
     skip: int = 0,
     limit: int = 50,
-    user: dict = Depends(require_role("DFO")),
+    user: dict = Depends(require_role("DFO", "SCHEME_VERIFIER", "AUDIT")),
 ):
     col = _col("investigations")
     if col is None:
@@ -131,7 +150,7 @@ async def list_investigations(
 async def get_investigation(case_id: str, user: dict = Depends(require_role("DFO"))):
     for cname in ["investigations", "flags"]:
         col = _col(cname)
-        if col:
+        if col is not None:
             try:
                 doc = col.find_one(
                     {"$or": [{"case_id": case_id}, {"flag_id": case_id}]},
@@ -162,7 +181,7 @@ async def assign_investigation(
     }
     for cname in ["investigations", "flags"]:
         col = _col(cname)
-        if col:
+        if col is not None:
             try:
                 col.update_one(
                     {"$or": [{"case_id": case_id}, {"flag_id": case_id}]},
@@ -180,7 +199,7 @@ async def get_institutions(
 ):
     col = _col("institutions")
     query = {"risk_profile.is_flagged": True} if flagged_only else {}
-    if col:
+    if col is not None:
         try:
             docs = list(col.find(query, {"_id": 0}))
             if docs:
@@ -197,7 +216,7 @@ async def get_institutions(
 @router.get("/verifiers")
 async def get_verifiers(user: dict = Depends(require_role("DFO"))):
     col = _col("officers")
-    if col:
+    if col is not None:
         try:
             docs = list(col.find({"role": "SCHEME_VERIFIER", "is_active": True}, {"_id": 0, "password_hash": 0}))
             if docs:
@@ -220,7 +239,7 @@ async def get_students(
 ):
     col = _col("beneficiaries")
     query = {"district": district} if district else {}
-    if col:
+    if col is not None:
         try:
             docs = list(col.find(query, {"_id": 0}).skip(skip).limit(limit))
             total = col.count_documents(query)
@@ -236,7 +255,7 @@ async def get_students(
 @router.get("/student/{beneficiary_id}")
 async def get_student(beneficiary_id: str, user: dict = Depends(require_role("DFO"))):
     col = _col("beneficiaries")
-    if col:
+    if col is not None:
         try:
             doc = col.find_one({"beneficiary_id": beneficiary_id}, {"_id": 0})
             if doc:

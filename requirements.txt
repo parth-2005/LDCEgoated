@@ -8,4 +8,4 @@ thefuzz
 python-Levenshtein
 python-jose[cryptography]
 passlib[bcrypt]
-bcrypt==4.2.1
+bcrypt==3.2.2

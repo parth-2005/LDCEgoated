@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react'
+import { useParams } from 'react-router-dom'
 import { api } from '../../api'
 import { LeakageBadge } from '../../components/RiskBadge'
 import { Sparkles, Loader2 } from 'lucide-react'
 
-export default function CaseDetail({ flagId }) {
+export default function CaseDetail() {
+  const { flagId } = useParams()
   const [flag, setFlag] = useState(null)
   const [loading, setLoading] = useState(true)
   const [aiLoading, setAiLoading] = useState(false)

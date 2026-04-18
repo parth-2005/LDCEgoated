@@ -28,15 +28,16 @@ def _load_json(filename: str, default=None):
 
 def _get_db():
     try:
-        from database import get_db, is_mongo_available
-        return get_db() if is_mongo_available() else None
-    except Exception:
+        from database import get_db
+        return get_db()
+    except Exception as e:
+        print(f"  [user] MongoDB unavailable: {e}")
         return None
 
 
 def _col(name: str):
     db = _get_db()
-    return db[name] if db else None
+    return db[name] if db is not None else None
 
 
 # ── Fallback profile ──────────────────────────────────────────────────────────
@@ -61,6 +62,13 @@ FALLBACK_USER = {
          "status": "PENDING_VERIFICATION", "registration_date": "2026-01-10",
          "amount": 25000, "last_payment": None, "next_payment": None},
     ],
+    "kyc_profile": {
+        "is_kyc_compliant": True,
+        "days_remaining": 42,
+        "kyc_expiry_date": "2026-05-31",
+        "last_kyc_date": "2026-03-02",
+        "dynamic_validity_days": 90,
+    },
 }
 
 
@@ -76,14 +84,14 @@ async def get_profile(user: dict = Depends(require_role("USER"))):
 
     # Try MongoDB beneficiaries collection first
     col = _col("beneficiaries")
-    if col:
+    if col is not None:
         try:
             doc = col.find_one({"beneficiary_id": uid}, {"_id": 0, "aadhaar_hash": 0, "bank_account_hash": 0})
             if doc:
                 # Merge registered schemes from payments
                 pay_col = _col("payment_ledger")
                 schemes: list = []
-                if pay_col:
+                if pay_col is not None:
                     payments = list(pay_col.find({"beneficiary_id": uid}, {"_id": 0}))
                     schemes = payments
                 doc["registered_schemes"] = schemes
@@ -104,7 +112,7 @@ async def get_user_schemes(user: dict = Depends(require_role("USER"))):
     """Returns scheme applications for the authenticated user."""
     uid = user["sub"]
     col = _col("payment_ledger")
-    if col:
+    if col is not None:
         try:
             docs = list(col.find({"beneficiary_id": uid}, {"_id": 0}))
             if docs:
@@ -125,7 +133,7 @@ async def get_user_payments(user: dict = Depends(require_role("USER"))):
     """Returns full payment history for the authenticated user."""
     uid = user["sub"]
     col = _col("payment_ledger")
-    if col:
+    if col is not None:
         try:
             docs = list(col.find({"beneficiary_id": uid}, {"_id": 0}).sort("payment_date", -1))
             return {"user_id": uid, "count": len(docs), "payments": docs}

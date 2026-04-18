@@ -32,32 +32,33 @@ def _load_json(filename: str, default=None):
 
 def _get_db():
     try:
-        from database import get_db, is_mongo_available
-        return get_db() if is_mongo_available() else None
-    except Exception:
+        from database import get_db
+        return get_db()
+    except Exception as e:
+        print(f"  [admin] MongoDB unavailable: {e}")
         return None
 
 
 def _col(name: str):
     db = _get_db()
-    return db[name] if db else None
+    return db[name] if db is not None else None
 
 
 # ── Fallback district stats ───────────────────────────────────────────────────
 
 FALLBACK_DISTRICT_STATS = [
-    {"district": "Ahmedabad",   "total_flags": 89, "deceased": 12, "duplicate": 31, "undrawn": 34, "cross_scheme": 12, "amount_at_risk": 2355000},
-    {"district": "Surat",       "total_flags": 67, "deceased": 8,  "duplicate": 22, "undrawn": 27, "cross_scheme": 10, "amount_at_risk": 1750000},
-    {"district": "Vadodara",    "total_flags": 42, "deceased": 5,  "duplicate": 18, "undrawn": 14, "cross_scheme": 5,  "amount_at_risk": 1100000},
-    {"district": "Rajkot",      "total_flags": 35, "deceased": 4,  "duplicate": 13, "undrawn": 12, "cross_scheme": 6,  "amount_at_risk": 875000},
-    {"district": "Gandhinagar", "total_flags": 14, "deceased": 2,  "duplicate": 4,  "undrawn": 7,  "cross_scheme": 1,  "amount_at_risk": 340000},
-    {"district": "Bhavnagar",   "total_flags": 12, "deceased": 2,  "duplicate": 3,  "undrawn": 6,  "cross_scheme": 1,  "amount_at_risk": 290000},
-    {"district": "Jamnagar",    "total_flags": 9,  "deceased": 1,  "duplicate": 3,  "undrawn": 4,  "cross_scheme": 1,  "amount_at_risk": 210000},
-    {"district": "Junagadh",    "total_flags": 7,  "deceased": 1,  "duplicate": 2,  "undrawn": 4,  "cross_scheme": 0,  "amount_at_risk": 180000},
-    {"district": "Anand",       "total_flags": 6,  "deceased": 1,  "duplicate": 2,  "undrawn": 2,  "cross_scheme": 1,  "amount_at_risk": 145000},
-    {"district": "Mehsana",     "total_flags": 5,  "deceased": 0,  "duplicate": 2,  "undrawn": 3,  "cross_scheme": 0,  "amount_at_risk": 125000},
-    {"district": "Patan",       "total_flags": 4,  "deceased": 1,  "duplicate": 1,  "undrawn": 2,  "cross_scheme": 0,  "amount_at_risk": 95000},
-    {"district": "Banaskantha", "total_flags": 3,  "deceased": 0,  "duplicate": 1,  "undrawn": 2,  "cross_scheme": 0,  "amount_at_risk": 75000},
+    {"district": "Ahmedabad",   "total_flags": 89, "deceased": 12, "duplicate": 31, "undrawn": 34, "cross_scheme": 12, "amount_at_risk": 2355000, "beneficiaries": 2480},
+    {"district": "Surat",       "total_flags": 67, "deceased": 8,  "duplicate": 22, "undrawn": 27, "cross_scheme": 10, "amount_at_risk": 1750000, "beneficiaries": 1860},
+    {"district": "Vadodara",    "total_flags": 42, "deceased": 5,  "duplicate": 18, "undrawn": 14, "cross_scheme": 5,  "amount_at_risk": 1100000, "beneficiaries": 1220},
+    {"district": "Rajkot",      "total_flags": 35, "deceased": 4,  "duplicate": 13, "undrawn": 12, "cross_scheme": 6,  "amount_at_risk": 875000,  "beneficiaries": 980},
+    {"district": "Gandhinagar", "total_flags": 14, "deceased": 2,  "duplicate": 4,  "undrawn": 7,  "cross_scheme": 1,  "amount_at_risk": 340000,  "beneficiaries": 410},
+    {"district": "Bhavnagar",   "total_flags": 12, "deceased": 2,  "duplicate": 3,  "undrawn": 6,  "cross_scheme": 1,  "amount_at_risk": 290000,  "beneficiaries": 350},
+    {"district": "Jamnagar",    "total_flags": 9,  "deceased": 1,  "duplicate": 3,  "undrawn": 4,  "cross_scheme": 1,  "amount_at_risk": 210000,  "beneficiaries": 280},
+    {"district": "Junagadh",    "total_flags": 7,  "deceased": 1,  "duplicate": 2,  "undrawn": 4,  "cross_scheme": 0,  "amount_at_risk": 180000,  "beneficiaries": 220},
+    {"district": "Anand",       "total_flags": 6,  "deceased": 1,  "duplicate": 2,  "undrawn": 2,  "cross_scheme": 1,  "amount_at_risk": 145000,  "beneficiaries": 190},
+    {"district": "Mehsana",     "total_flags": 5,  "deceased": 0,  "duplicate": 2,  "undrawn": 3,  "cross_scheme": 0,  "amount_at_risk": 125000,  "beneficiaries": 170},
+    {"district": "Patan",       "total_flags": 4,  "deceased": 1,  "duplicate": 1,  "undrawn": 2,  "cross_scheme": 0,  "amount_at_risk": 95000,   "beneficiaries": 130},
+    {"district": "Banaskantha", "total_flags": 3,  "deceased": 0,  "duplicate": 1,  "undrawn": 2,  "cross_scheme": 0,  "amount_at_risk": 75000,   "beneficiaries": 110},
 ]
 
 FALLBACK_SCHEMES = [
@@ -81,22 +82,40 @@ class SchemeUpdateBody(BaseModel):
 async def state_overview(user: dict = Depends(require_role("STATE_ADMIN"))):
     flags_col = _col("flags")
     flags: list = []
-    if flags_col:
+    if flags_col is not None:
         try:
             flags = list(flags_col.find({}, {"_id": 0}))
         except Exception:
             pass
 
-    beneficiaries = _load_json("beneficiaries.json")
-    payments      = _load_json("payment_ledger.json")
+    # Try MongoDB first for counts
+    ben_col = _col("beneficiaries")
+    pay_col = _col("payment_ledger")
+    total_ben = 0
+    total_pay = 0
+    if ben_col is not None:
+        try:
+            total_ben = ben_col.count_documents({})
+        except Exception:
+            pass
+    if pay_col is not None:
+        try:
+            total_pay = pay_col.count_documents({})
+        except Exception:
+            pass
+    if total_ben == 0:
+        total_ben = len(_load_json("beneficiaries.json"))
+    if total_pay == 0:
+        total_pay = len(_load_json("payment_ledger.json"))
+
     total_at_risk = sum(f.get("payment_amount", 0) or 0 for f in flags)
     by_label      = defaultdict(int)
     for f in flags:
         by_label[f.get("risk_label", "UNKNOWN")] += 1
 
     return {
-        "total_beneficiaries": len(beneficiaries),
-        "total_payments":      len(payments),
+        "total_beneficiaries": total_ben,
+        "total_payments":      total_pay,
         "total_flags":         len(flags),
         "total_at_risk":       total_at_risk,
         "flags_by_label":      dict(by_label),
@@ -108,7 +127,7 @@ async def state_overview(user: dict = Depends(require_role("STATE_ADMIN"))):
 @router.get("/district-stats")
 async def district_stats(user: dict = Depends(require_role("STATE_ADMIN"))):
     flags_col = _col("flags")
-    if flags_col:
+    if flags_col is not None:
         try:
             flags = list(flags_col.find({}, {"_id": 0}))
             if flags:
@@ -118,7 +137,7 @@ async def district_stats(user: dict = Depends(require_role("STATE_ADMIN"))):
                     lt = f.get("leakage_type", "")
                     amt = f.get("payment_amount", 0) or 0
                     if d not in agg:
-                        agg[d] = {"district": d, "total_flags": 0, "deceased": 0, "duplicate": 0, "undrawn": 0, "cross_scheme": 0, "amount_at_risk": 0}
+                        agg[d] = {"district": d, "total_flags": 0, "deceased": 0, "duplicate": 0, "undrawn": 0, "cross_scheme": 0, "amount_at_risk": 0, "beneficiaries": 0}
                     agg[d]["total_flags"] += 1
                     agg[d]["amount_at_risk"] += amt
                     key = {"DECEASED": "deceased", "DUPLICATE": "duplicate", "UNDRAWN": "undrawn", "CROSS_SCHEME": "cross_scheme"}.get(lt)
@@ -133,7 +152,7 @@ async def district_stats(user: dict = Depends(require_role("STATE_ADMIN"))):
 @router.get("/schemes")
 async def get_schemes(user: dict = Depends(require_role("STATE_ADMIN"))):
     col = _col("schemes")
-    if col:
+    if col is not None:
         try:
             docs = list(col.find({}, {"_id": 0}))
             if docs:
@@ -161,7 +180,7 @@ async def update_scheme(
         update["mutual_exclusions"] = body.mutual_exclusions
 
     col = _col("schemes")
-    if col:
+    if col is not None:
         try:
             col.update_one({"scheme_id": scheme_id}, {"$set": update}, upsert=True)
             return col.find_one({"scheme_id": scheme_id}, {"_id": 0})
@@ -178,7 +197,7 @@ async def update_scheme(
 async def list_officers(user: dict = Depends(require_role("STATE_ADMIN"))):
     from ..seed import DEMO_OFFICERS
     col = _col("officers")
-    if col:
+    if col is not None:
         try:
             docs = list(col.find({}, {"_id": 0, "password_hash": 0}))
             if docs:

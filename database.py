@@ -1,16 +1,7 @@
 """
 database.py — MongoDB Atlas connection singleton for EduGuard DBT.
-
-Connection string and database name are read from environment variables:
-    MONGO_URI       (default: mongodb://localhost:27017)
-    MONGO_DB_NAME   (default: eduguard_dbt)
-
-If the connection fails, callers should fall back to JSON files.
 """
-
 import os
-from typing import Optional
-
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -18,11 +9,9 @@ load_dotenv()
 _client = None
 _db = None
 
-MONGO_URI = os.getenv(
-    "MONGO_URI",
-    "mongodb://localhost:27017",
-)
-MONGO_DB_NAME = os.getenv("MONGO_DB_NAME", "eduguard_dbt")
+MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017")
+MONGO_DB_NAME = os.getenv("MONGO_DB_NAME", "EduGuard")
+
 
 
 def get_client():
@@ -30,46 +19,62 @@ def get_client():
     global _client
     if _client is None:
         from pymongo import MongoClient
-
         _client = MongoClient(
             MONGO_URI,
-            serverSelectionTimeoutMS=5000,   # fail fast if Atlas unreachable
-            connectTimeoutMS=5000,
-            tls=True,
-            tlsAllowInvalidCertificates=False,
+            serverSelectionTimeoutMS=8000,
+            connectTimeoutMS=8000,
         )
-        # Force a round-trip so connection errors surface immediately.
         _client.admin.command("ping")
     return _client
 
 
 def get_db():
-    """Return the application database."""
+    """Return the application database. Raises if Mongo is unavailable."""
     global _db
     if _db is None:
         _db = get_client()[MONGO_DB_NAME]
     return _db
 
 
-# ---- Collection accessors -------------------------------------------------
+# ---- Safe collection accessors (return None if Mongo is unavailable) --------
+
+def _safe_col(name: str):
+    """Return a collection or None if MongoDB is unavailable."""
+    try:
+        return get_db()[name]
+    except Exception:
+        return None
+
 
 def get_students_collection():
-    return get_db()["students"]
+    return _safe_col("students")
 
 
 def get_payments_collection():
-    return get_db()["payments"]
+    return _safe_col("payments")
 
 
 def get_deaths_collection():
-    return get_db()["death_registry"]
+    return _safe_col("death_registry")
 
 
 def get_flags_collection():
-    return get_db()["flags"]
+    return _safe_col("flags")
 
 
-# ---- Health check ----------------------------------------------------------
+def get_udise_collection():
+    return _safe_col("udise")
+
+
+def get_institutions_collection():
+    return _safe_col("institutions")
+
+
+def get_officers_collection():
+    return _safe_col("officers")
+
+
+# ---- Health check -----------------------------------------------------------
 
 def is_mongo_available() -> bool:
     """Return True if MongoDB Atlas is reachable."""
@@ -81,7 +86,7 @@ def is_mongo_available() -> bool:
 
 
 def close_connection():
-    """Explicitly close the client (useful in scripts / tests)."""
+    """Explicitly close the client."""
     global _client, _db
     if _client:
         _client.close()

@@ -19,15 +19,16 @@ router = APIRouter(prefix="/api/audit", tags=["audit"])
 
 def _get_db():
     try:
-        from database import get_db, is_mongo_available
-        return get_db() if is_mongo_available() else None
-    except Exception:
+        from database import get_db
+        return get_db()
+    except Exception as e:
+        print(f"  [audit] MongoDB unavailable: {e}")
         return None
 
 
 def _col(name: str):
     db = _get_db()
-    return db[name] if db else None
+    return db[name] if db is not None else None
 
 
 # ── Models ────────────────────────────────────────────────────────────────────
@@ -45,7 +46,7 @@ async def audit_pending(user: dict = Depends(require_role("AUDIT"))):
     results: list = []
     for cname in ["investigations", "flags"]:
         col = _col(cname)
-        if col:
+        if col is not None:
             try:
                 docs = list(col.find(
                     {"status": "VERIFICATION_SUBMITTED"},
@@ -75,7 +76,7 @@ async def audit_pending(user: dict = Depends(require_role("AUDIT"))):
 async def get_audit_case(case_id: str, user: dict = Depends(require_role("AUDIT"))):
     for cname in ["investigations", "flags"]:
         col = _col(cname)
-        if col:
+        if col is not None:
             try:
                 doc = col.find_one(
                     {"$or": [{"case_id": case_id}, {"flag_id": case_id}]},
@@ -111,7 +112,7 @@ async def audit_decide(
 
     for cname in ["investigations", "flags"]:
         col = _col(cname)
-        if col:
+        if col is not None:
             try:
                 col.update_one(
                     {"$or": [{"case_id": case_id}, {"flag_id": case_id}]},
@@ -129,7 +130,7 @@ async def audit_all(user: dict = Depends(require_role("AUDIT"))):
     results: list = []
     for cname in ["investigations", "flags"]:
         col = _col(cname)
-        if col:
+        if col is not None:
             try:
                 docs = list(col.find({"status": "AUDIT_REVIEW"}, {"_id": 0}).sort("risk_score", -1))
                 results.extend(docs)
