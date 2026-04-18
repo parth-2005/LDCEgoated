@@ -1,6 +1,6 @@
-import { useState } from 'react'
-import { Building2, AlertTriangle, ChevronDown, ChevronUp, TrendingDown, TrendingUp, Minus } from 'lucide-react'
-import { mockInstitutions } from '../../mock/dfoMock'
+import { useState, useEffect } from 'react'
+import { Building2, AlertTriangle, ChevronDown, ChevronUp, TrendingDown, TrendingUp, Minus, Loader2 } from 'lucide-react'
+import { getInstitutions } from '../../api'
 import AssignCaseModal from '../../components/AssignCaseModal'
 
 const TYPE_COLORS = {
@@ -17,12 +17,21 @@ function RiskScore({ score }) {
 }
 
 export default function MiddlemenList() {
+  const [institutions, setInstitutions] = useState([])
+  const [loading, setLoading] = useState(true)
   const [expanded, setExpanded] = useState(null)
   const [sortKey, setSortKey] = useState('risk_profile.risk_score')
   const [sortDir, setSortDir] = useState('desc')
   const [assignModal, setAssignModal] = useState(null)
 
-  const sorted = [...mockInstitutions].sort((a, b) => {
+  useEffect(() => {
+    getInstitutions().then(data => {
+      setInstitutions(Array.isArray(data) ? data : [])
+      setLoading(false)
+    })
+  }, [])
+
+  const sorted = [...institutions].sort((a, b) => {
     const getVal = (obj, key) => key.split('.').reduce((o, k) => o?.[k], obj) ?? 0
     const va = getVal(a, sortKey), vb = getVal(b, sortKey)
     return sortDir === 'desc' ? vb - va : va - vb
@@ -53,11 +62,11 @@ export default function MiddlemenList() {
         </div>
         <div className="flex gap-3 text-sm font-data">
           <div className="px-4 py-2 bg-white rounded-lg border border-gray-200 shadow-sm text-center">
-            <p className="text-2xl font-bold text-text-primary font-sans">{mockInstitutions.length}</p>
+            <p className="text-2xl font-bold text-text-primary font-sans">{institutions.length}</p>
             <p className="text-xs text-text-secondary">Total</p>
           </div>
           <div className="px-4 py-2 bg-red-50 rounded-lg border border-red-100 shadow-sm text-center">
-            <p className="text-2xl font-bold text-risk-critical font-sans">{mockInstitutions.filter(i => i.risk_profile.is_flagged).length}</p>
+            <p className="text-2xl font-bold text-risk-critical font-sans">{institutions.filter(i => i.risk_profile.is_flagged).length}</p>
             <p className="text-xs text-red-400">Flagged</p>
           </div>
         </div>

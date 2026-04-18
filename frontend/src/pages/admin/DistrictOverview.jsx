@@ -1,6 +1,6 @@
-import { useState } from 'react'
-import { mockDistrictStats } from '../../mock/adminMock'
-import { BarChart3, ChevronDown, ChevronUp, Search } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { getDistrictStats } from '../../api'
+import { BarChart3, ChevronDown, ChevronUp, Search, Loader2 } from 'lucide-react'
 
 const LEAKAGE_COLORS = {
   deceased: '#E63946',
@@ -21,12 +21,21 @@ function RiskBar({ value, max, color }) {
 }
 
 export default function DistrictOverview() {
+  const [allStats, setAllStats] = useState([])
+  const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [sortKey, setSortKey] = useState('total_flags')
   const [sortDir, setSortDir] = useState('desc')
   const [selected, setSelected] = useState(null)
 
-  const uniqueDistricts = [...new Map(mockDistrictStats.map(d => [d.district, d])).values()]
+  useEffect(() => {
+    getDistrictStats().then(data => {
+      setAllStats(Array.isArray(data) ? data : [])
+      setLoading(false)
+    })
+  }, [])
+
+  const uniqueDistricts = [...new Map(allStats.map(d => [d.district, d])).values()]
 
   const filtered = uniqueDistricts
     .filter(d => d.district.toLowerCase().includes(search.toLowerCase()))

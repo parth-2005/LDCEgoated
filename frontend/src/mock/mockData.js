@@ -98,3 +98,8 @@ export const mockUsers = [
     ]
   }
 ];
+
+// Named export used by src/api.js as fallback for user data
+export const mockData = {
+  user: mockUsers[0] || null,
+}

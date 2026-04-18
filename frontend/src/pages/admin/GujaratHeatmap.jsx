@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { ComposableMap, Geographies, Geography, ZoomableGroup } from 'react-simple-maps'
 import * as topojson from 'topojson-client'
-import { mockDistrictStats } from '../../mock/adminMock'
+import { getDistrictStats } from '../../api'
 import { X, TrendingUp, ZoomIn, ZoomOut, RotateCcw, Loader2 } from 'lucide-react'
 
 // The TopoJSON uses these district name variants — map them to our mock data keys
@@ -41,7 +41,7 @@ const DISTRICT_NAME_MAP = {
   'Morbi': 'Morbi',
 }
 
-const statByDistrict = Object.fromEntries(mockDistrictStats.map(d => [d.district, d]))
+const statByDistrictFn = (districtStats) => Object.fromEntries(districtStats.map(d => [d.district, d]))
 
 function getFillColor(flags, max) {
   if (!flags || flags === 0) return '#d1fae5'
@@ -65,6 +65,7 @@ const LEGEND = [
 ]
 
 export default function GujaratHeatmap() {
+  const [districtStats, setDistrictStats] = useState([])
   const [topoData, setTopoData] = useState(null)
   const [geoJSON, setGeoJSON] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -74,6 +75,9 @@ export default function GujaratHeatmap() {
   const [zoom, setZoom] = useState(1)
 
   useEffect(() => {
+    // Load district stats from API (fallback to mock in api.js)
+    getDistrictStats().then(data => setDistrictStats(Array.isArray(data) ? data : []))
+    // Load TopoJSON map
     fetch('/gujarat.json')
       .then(r => {
         if (!r.ok) throw new Error(`HTTP ${r.status}`)
@@ -93,9 +97,10 @@ export default function GujaratHeatmap() {
       })
   }, [])
 
-  const maxFlags = Math.max(...mockDistrictStats.map(d => d.total_flags), 1)
-  const totalFlags = mockDistrictStats.reduce((s, d) => s + d.total_flags, 0)
-  const totalRisk = mockDistrictStats.reduce((s, d) => s + d.amount_at_risk, 0)
+  const statByDistrict = statByDistrictFn(districtStats)
+  const maxFlags = Math.max(...districtStats.map(d => d.total_flags), 1)
+  const totalFlags = districtStats.reduce((s, d) => s + d.total_flags, 0)
+  const totalRisk  = districtStats.reduce((s, d) => s + d.amount_at_risk, 0)
 
   const selectedData = selected ? statByDistrict[selected] : null
 
@@ -140,7 +145,7 @@ export default function GujaratHeatmap() {
           {[
             { label: 'Total Flags', value: totalFlags, color: 'text-risk-critical' },
             { label: 'Amount at Risk', value: `₹${(totalRisk / 100000).toFixed(1)}L` },
-            { label: 'Districts Affected', value: `${mockDistrictStats.filter(d => d.total_flags > 0).length}/33` },
+            { label: 'Districts Affected', value: `${districtStats.filter(d => d.total_flags > 0).length}/33` },
           ].map((s, i) => (
             <div key={i} className="px-4 py-2.5 bg-white rounded-xl border border-gray-200 shadow-sm text-center min-w-[110px]">
               <p className={`text-2xl font-bold font-sans ${s.color || 'text-text-primary'}`}>{s.value}</p>
@@ -302,10 +307,10 @@ export default function GujaratHeatmap() {
                 <div className="flex items-center gap-1.5 text-xs text-text-secondary font-data">
                   <TrendingUp size={12} />
                   <span>
-                    Ranks #{[...mockDistrictStats]
+                    Ranks #{[...districtStats]
                       .filter((d, i, a) => a.findIndex(x => x.district === d.district) === i)
                       .sort((a, b) => b.total_flags - a.total_flags)
-                      .findIndex(d => d.district === selectedData.district) + 1} / 33 by risk
+                      .findIndex(d => d.district === selectedData.district) + 1} / {districtStats.length} by risk
                   </span>
                 </div>
               </div>
@@ -325,7 +330,7 @@ export default function GujaratHeatmap() {
             <div className="px-5 py-3 border-b border-gray-100">
               <p className="text-xs font-bold text-text-secondary uppercase tracking-widest font-data">Top 5 High-Risk Districts</p>
             </div>
-            {[...mockDistrictStats]
+            {[...districtStats]
               .filter((d, i, a) => a.findIndex(x => x.district === d.district) === i)
               .sort((a, b) => b.total_flags - a.total_flags)
               .slice(0, 5)

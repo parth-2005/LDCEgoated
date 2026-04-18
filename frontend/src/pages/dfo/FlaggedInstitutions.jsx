@@ -1,6 +1,6 @@
-import { useState } from 'react'
-import { AlertTriangle, ExternalLink, FileSearch } from 'lucide-react'
-import { mockInstitutions } from '../../mock/dfoMock'
+import { useState, useEffect } from 'react'
+import { AlertTriangle, ExternalLink, FileSearch, Loader2 } from 'lucide-react'
+import { getInstitutions } from '../../api'
 import AssignCaseModal from '../../components/AssignCaseModal'
 
 const RISK_BG = (score) => {
@@ -10,10 +10,20 @@ const RISK_BG = (score) => {
 }
 
 export default function FlaggedInstitutions() {
-  const flagged = mockInstitutions.filter(i => i.risk_profile.is_flagged)
-    .sort((a, b) => b.risk_profile.risk_score - a.risk_profile.risk_score)
+  const [flagged, setFlagged] = useState([])
+  const [loading, setLoading] = useState(true)
   const [assignModal, setAssignModal] = useState(null)
   const [referred, setReferred] = useState(new Set())
+
+  useEffect(() => {
+    getInstitutions({ flagged_only: true }).then(data => {
+      const sorted = (Array.isArray(data) ? data : [])
+        .filter(i => i.risk_profile?.is_flagged)
+        .sort((a, b) => b.risk_profile.risk_score - a.risk_profile.risk_score)
+      setFlagged(sorted)
+      setLoading(false)
+    })
+  }, [])
 
   return (
     <div className="p-8 pb-20">

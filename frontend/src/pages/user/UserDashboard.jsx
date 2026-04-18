@@ -1,30 +1,8 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { CheckCircle, Clock, AlertTriangle, FileCheck, ChevronRight, RefreshCw, Shield, Camera, User, Phone, MapPin, CreditCard, X, Loader2, Check } from 'lucide-react'
+import { getUser, renewKYC } from '../../api'
 
-// ─── Mock user data ───────────────────────────────────────────────────────────
-const mockUser = {
-  full_name: 'Karan Patel',
-  user_id: 'USR-GJ-001',
-  aadhaar_hash: 'a8f5f167f44f4964...',
-  aadhaar_display: 'XXXX-XXXX-4964',
-  phone: '+91 98765 43210',
-  demographics: { district: 'Ahmedabad', taluka: 'Sanand', gender: 'M', dob: '2006-05-14', category: 'OBC' },
-  bank: { bank: 'SBI', account_display: 'XXXXXX3421', ifsc: 'SBIN0001234' },
-  kyc_profile: {
-    is_kyc_compliant: true,
-    last_kyc_date: '2026-03-01',
-    kyc_expiry_date: '2026-06-01',
-    dynamic_validity_days: 90,
-    kyc_method: 'BIOMETRIC_OR_OTP',
-    days_remaining: 44,
-  },
-  registered_schemes: [
-    { scheme_id: 'SCH-MGMS', name: 'Mukhyamantri Gyan Sadhana Merit Scholarship', status: 'ACTIVE', registration_date: '2025-08-15', amount: 20000, last_payment: '2025-11-01', next_payment: '2026-04-01' },
-    { scheme_id: 'SCH-NLY', name: 'Namo Lakshmi Yojana', status: 'PENDING_VERIFICATION', registration_date: '2026-01-10', amount: 25000, last_payment: null, next_payment: null },
-  ],
-}
-
-const mockSchemeNews = [
+const SCHEME_NEWS = [
   { id: 1, title: 'Namo Lakshmi Yojana — Extended Application Window', date: '2026-04-10', tag: 'NEW', body: 'The application deadline for NLY 2025-26 has been extended to 30 April 2026. Eligible girl students in classes 9–12 can now apply.' },
   { id: 2, title: 'MGMS Disbursement Date Announced', date: '2026-04-05', tag: 'UPDATE', body: 'Merit scholarship payments for AY 2025-26 will be credited on 1 May 2026. Ensure your bank details are confirmed.' },
   { id: 3, title: 'KYC Renewal Reminder', date: '2026-03-28', tag: 'REMINDER', body: 'Beneficiaries must renew their KYC before the expiry date to continue receiving benefits. OTP-based verification is now available.' },
@@ -290,10 +268,42 @@ function KYCCard({ kyc, onOpenModal }) {
 
 // ─── Main Dashboard ─────────────────────────────────────────────────────────────
 export default function UserDashboard() {
-  const user = mockUser
+  const [user, setUser] = useState(null)
+  const [loading, setLoading] = useState(true)
   const [showKYCModal, setShowKYCModal] = useState(false)
   const [kycDone, setKycDone] = useState(false)
   const [readNews, setReadNews] = useState(new Set())
+
+  useEffect(() => {
+    getUser('USR-GJ-001').then(data => {
+      setUser(data)
+      setLoading(false)
+    })
+  }, [])
+
+  const handleKYCComplete = async () => {
+    if (user) {
+      const res = await renewKYC(user.user_id, user.kyc_profile?.dynamic_validity_days || 90)
+      if (res?.success) {
+        setUser(prev => ({
+          ...prev,
+          kyc_profile: { ...prev.kyc_profile, ...res, is_kyc_compliant: true },
+        }))
+      }
+    }
+    setKycDone(true)
+  }
+
+  if (loading || !user) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="flex flex-col items-center gap-3 text-text-secondary">
+          <Loader2 size={28} className="animate-spin text-primary-override" />
+          <p className="text-sm font-data">Loading your dashboard…</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="p-8 pb-20 font-sans max-w-6xl mx-auto">
@@ -302,7 +312,7 @@ export default function UserDashboard() {
         <KYCModal
           user={user}
           onClose={() => setShowKYCModal(false)}
-          onComplete={() => setKycDone(true)}
+          onComplete={handleKYCComplete}
         />
       )}
 
@@ -407,7 +417,7 @@ export default function UserDashboard() {
               <h2 className="font-bold text-text-primary font-sans text-sm">Scheme News & Updates</h2>
             </div>
             <div className="divide-y divide-gray-50">
-              {mockSchemeNews.map(news => {
+              {SCHEME_NEWS.map(news => {
                 const isRead = readNews.has(news.id)
                 return (
                   <button key={news.id} onClick={() => setReadNews(s => new Set([...s, news.id]))}

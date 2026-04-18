@@ -1,20 +1,24 @@
 import { useState, useEffect } from 'react'
-import { FileCheck, MapPin, BrainCircuit, CheckCircle, XCircle, Send } from 'lucide-react'
-import { mockInvestigations } from '../../mock/mockData'
+import { FileCheck, MapPin, BrainCircuit, CheckCircle, XCircle, Send, Loader2 } from 'lucide-react'
+import { getAuditPending, auditDecide } from '../../api'
 
 export default function AuditOfficerDashboard() {
   const [cases, setCases] = useState([])
+  const [loading, setLoading] = useState(true)
   const [selectedCase, setSelectedCase] = useState(null)
 
   useEffect(() => {
-    // Simulate fetching from API
-    setCases(mockInvestigations)
+    getAuditPending().then(data => {
+      setCases(Array.isArray(data) ? data : [])
+      setLoading(false)
+    })
   }, [])
 
-  const handleVerify = (caseId, status) => {
-    setCases(prev => prev.map(c => 
-      c.case_id === caseId 
-        ? { ...c, status: 'AUDIT_REVIEW', audit_report: { auditor_notes: 'Reviewed by Auditor', final_decision: status } } 
+  const handleVerify = async (caseId, decision) => {
+    await auditDecide(caseId, decision, 'Reviewed by Audit Officer')
+    setCases(prev => prev.map(c =>
+      c.case_id === caseId
+        ? { ...c, status: 'AUDIT_REVIEW', audit_report: { auditor_notes: 'Reviewed by Audit Officer', final_decision: decision } }
         : c
     ))
     setSelectedCase(null)

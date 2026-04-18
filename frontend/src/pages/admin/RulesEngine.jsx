@@ -1,6 +1,6 @@
-import { useState } from 'react'
-import { mockSchemes } from '../../mock/adminMock'
-import { BookOpen, ChevronDown, ChevronUp, Edit3, Save, X, Plus, CheckCircle } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { getSchemes, updateScheme } from '../../api'
+import { BookOpen, ChevronDown, ChevronUp, Edit3, Save, X, CheckCircle, Loader2 } from 'lucide-react'
 
 const STATUS_COLORS = {
   ACTIVE: 'bg-emerald-100 text-emerald-700',
@@ -14,11 +14,19 @@ const DEPT_COLORS = {
 }
 
 export default function RulesEngine() {
-  const [schemes, setSchemes] = useState(mockSchemes)
+  const [schemes, setSchemes] = useState([])
+  const [loading, setLoading] = useState(true)
   const [expanded, setExpanded] = useState(null)
   const [editing, setEditing] = useState(null)
   const [editState, setEditState] = useState({})
   const [saved, setSaved] = useState(null)
+
+  useEffect(() => {
+    getSchemes().then(data => {
+      setSchemes(Array.isArray(data) ? data : [])
+      setLoading(false)
+    })
+  }, [])
 
   const startEdit = (scheme) => {
     setEditing(scheme.scheme_id)
@@ -30,17 +38,18 @@ export default function RulesEngine() {
     })
   }
 
-  const saveEdit = (schemeId) => {
-    setSchemes(prev => prev.map(s => s.scheme_id !== schemeId ? s : {
-      ...s,
+  const saveEdit = async (schemeId) => {
+    const payload = {
       status: editState.status,
       eligibility_rules: {
-        ...s.eligibility_rules,
+        ...schemes.find(s => s.scheme_id === schemeId)?.eligibility_rules,
         min_attendance_pct: Number(editState.min_attendance_pct),
         gender_target: editState.gender_target,
       },
       mutual_exclusions: editState.mutual_exclusions.split(',').map(e => e.trim()).filter(Boolean),
-    }))
+    }
+    const updated = await updateScheme(schemeId, payload)
+    setSchemes(prev => prev.map(s => s.scheme_id !== schemeId ? s : { ...s, ...updated }))
     setEditing(null)
     setSaved(schemeId)
     setTimeout(() => setSaved(null), 2500)

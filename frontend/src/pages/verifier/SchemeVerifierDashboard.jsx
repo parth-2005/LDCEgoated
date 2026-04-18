@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
-import { MapPin, FileImage, List, Clock, AlertTriangle, CheckCircle, ChevronRight } from 'lucide-react'
-import { mockInvestigations } from '../../mock/mockData'
+import { MapPin, FileImage, List, Clock, AlertTriangle, CheckCircle, ChevronRight, Loader2 } from 'lucide-react'
+import { getInvestigations } from '../../api'
 
 const ANOMALY_LABELS = {
   DEAD_BENEFICIARY: 'Deceased Beneficiary',
@@ -21,13 +21,20 @@ export default function SchemeVerifierDashboard({ onSubmitEvidence }) {
   const [submitted, setSubmitted] = useState(new Set())
 
   useEffect(() => {
-    const extra = [
-      { case_id: 'CASE-2026-003', anomaly_type: 'DEAD_BENEFICIARY', target_entity: { entity_id: 'USR-GJ-112', name: 'Rekha Patel' }, district: 'Ahmedabad', scheme: 'MGMS', amount: 18000, assigned_date: '2026-04-15', status: 'ASSIGNED_TO_VERIFIER', field_report: null },
-      { case_id: 'CASE-2026-007', anomaly_type: 'DUPLICATE', target_entity: { entity_id: 'USR-GJ-219', name: 'Arjun Shah' }, district: 'Surat', scheme: 'NLY', amount: 25000, assigned_date: '2026-04-16', status: 'ASSIGNED_TO_VERIFIER', field_report: null },
-      { case_id: 'CASE-2026-011', anomaly_type: 'CROSS_SCHEME', target_entity: { entity_id: 'USR-GJ-344', name: 'Priya Desai' }, district: 'Vadodara', scheme: 'MGMS+NLY', amount: 43000, assigned_date: '2026-04-14', status: 'VERIFICATION_SUBMITTED', field_report: { submitted_at: '2026-04-17' } },
-    ]
-    const base = mockInvestigations?.filter(c => c.status === 'ASSIGNED_TO_VERIFIER' || c.status === 'VERIFICATION_SUBMITTED') || []
-    setCases([...extra, ...base].filter((v, i, a) => a.findIndex(x => x.case_id === v.case_id) === i))
+    // Fetch from real API; fallback data is handled by api.js wrapper
+    getInvestigations({ status: 'ASSIGNED_TO_VERIFIER' }).then(apiData => {
+      // Also include VERIFICATION_SUBMITTED so verifier can see submitted ones
+      getInvestigations({ status: 'VERIFICATION_SUBMITTED' }).then(submittedData => {
+        const extra = [
+          { case_id: 'CASE-2026-003', anomaly_type: 'DEAD_BENEFICIARY', target_entity: { entity_id: 'USR-GJ-112', name: 'Rekha Patel' }, district: 'Ahmedabad', scheme: 'MGMS', amount: 18000, assigned_date: '2026-04-15', status: 'ASSIGNED_TO_VERIFIER', field_report: null },
+          { case_id: 'CASE-2026-007', anomaly_type: 'DUPLICATE', target_entity: { entity_id: 'USR-GJ-219', name: 'Arjun Shah' }, district: 'Surat', scheme: 'NLY', amount: 25000, assigned_date: '2026-04-16', status: 'ASSIGNED_TO_VERIFIER', field_report: null },
+          { case_id: 'CASE-2026-011', anomaly_type: 'CROSS_SCHEME', target_entity: { entity_id: 'USR-GJ-344', name: 'Priya Desai' }, district: 'Vadodara', scheme: 'MGMS+NLY', amount: 43000, assigned_date: '2026-04-14', status: 'VERIFICATION_SUBMITTED', field_report: { submitted_at: '2026-04-17' } },
+        ]
+        const all = [...(Array.isArray(apiData) ? apiData : []), ...(Array.isArray(submittedData) ? submittedData : []), ...extra]
+        const deduped = all.filter((v, i, a) => a.findIndex(x => x.case_id === v.case_id) === i)
+        setCases(deduped)
+      })
+    })
   }, [])
 
   const pending  = cases.filter(c => c.status === 'ASSIGNED_TO_VERIFIER' && !submitted.has(c.case_id))
