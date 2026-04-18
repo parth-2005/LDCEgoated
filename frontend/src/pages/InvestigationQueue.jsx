@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { api } from '../api'
 import { RiskBadge, LeakageBadge } from '../components/RiskBadge'
 
-export default function InvestigationQueue({ onOpenCase }) {
+export default function InvestigationQueue() {
   const [flags, setFlags] = useState([])
+  const navigate = useNavigate()
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -88,7 +90,7 @@ export default function InvestigationQueue({ onOpenCase }) {
                   </td>
                   <td className="p-4">
                     <button 
-                      onClick={() => onOpenCase(flag.flag_id)} 
+                      onClick={() => navigate(`/dfo/case/${flag.flag_id}`)} 
                       className="text-primary-override hover:underline font-sans font-semibold text-sm"
                     >
                       Review
