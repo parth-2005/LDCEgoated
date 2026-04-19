@@ -73,35 +73,16 @@ export default function CompleteProfile() {
   const [error, setError] = useState('')
   const [geography, setGeography] = useState([])
 
-  // Step 1 — Aadhaar
-  const [aadhaar, setAadhaar] = useState('')
-  const [aadhaarDisplay, setAadhaarDisplay] = useState('')
-  const [showAadhaar, setShowAadhaar] = useState(false)
-  const [aadhaarSending, setAadhaarSending] = useState(false)
-  const [transactionId, setTransactionId] = useState(null)
-  const [otp, setOtp] = useState('')
-  const [otpSent, setOtpSent] = useState(false)
-  const [aadhaarVerified, setAadhaarVerified] = useState(false)
-  const [aadhaarData, setAadhaarData] = useState(null)
-  const [demoMode, setDemoMode] = useState(false)
-  const [resendCountdown, setResendCountdown] = useState(0)
-
-  // Step 2 — Personal
-  const [phone, setPhone] = useState('')
-  const [gender, setGender] = useState('')
-  const [dob, setDob] = useState('')
-  const [caste, setCaste] = useState('')
-  const [income, setIncome] = useState('')
-
-  // Step 3 — Location
-  const [district, setDistrict] = useState('')
-  const [taluka, setTaluka] = useState('')
-  const [address, setAddress] = useState('')
-
-  // Step 4 — Bank
-  const [bankSearch, setBankSearch] = useState('')
-  const [bankName, setBankName] = useState('')
-  const [showBankDropdown, setShowBankDropdown] = useState(false)
+  // Form fields
+  const [email]                   = useState(officer?.email || '')
+  const [phone, setPhone]         = useState('')
+  const [gender, setGender]       = useState('')
+  const [dob, setDob]             = useState('')
+  const [caste, setCaste]         = useState('')
+  const [income, setIncome]       = useState('')
+  const [district, setDistrict]   = useState('')
+  const [taluka, setTaluka]       = useState('')
+  const [bankName, setBankName]   = useState('')
   const [bankAccount, setBankAccount] = useState('')
   const [bankIfsc, setBankIfsc] = useState('')
   const [ifscLooking, setIfscLooking] = useState(false)
@@ -446,25 +427,25 @@ export default function CompleteProfile() {
           {/* ── STEP 2: Personal Info ── */}
           {step === 2 && (
             <div className="space-y-4">
-              <div className="flex items-center gap-2 mb-1">
-                <User size={16} className="text-primary-override" />
-                <h3 className="text-sm font-bold text-text-primary uppercase tracking-widest">Personal Information</h3>
-              </div>
-
-              {aadhaarData?.name && (
-                <div className="bg-surface-low px-4 py-2.5 rounded-xl text-xs font-data text-text-secondary border border-border-subtle">
-                  Pre-filled from Aadhaar. Review and correct if needed.
+              <h3 className="text-sm font-bold text-text-primary uppercase tracking-widest flex items-center gap-2">
+                <User size={16} /> Personal Information
+              </h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-text-secondary mb-1">Email Address</label>
+                  <div className="relative">
+                    <input type="email" value={email} readOnly disabled
+                      className="w-full px-4 py-2.5 bg-surface-low border border-border-subtle text-sm text-text-secondary rounded-lg outline-none opacity-80 cursor-not-allowed" />
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 text-[10px] font-bold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full">
+                      <CheckCircle size={10} /> Verified
+                    </div>
+                  </div>
                 </div>
-              )}
-
-              <div>
-                <label className={labelClass}>Mobile Number <span className="text-risk-critical">*</span></label>
-                <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm text-text-secondary font-mono">+91</span>
-                  <input type="tel" value={phone} onChange={e => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
-                    placeholder="9XXXXXXXXX" maxLength={10} className={`${inputClass} pl-14`} />
+                <div>
+                  <label className="block text-xs font-bold text-text-secondary mb-1">Phone Number</label>
+                  <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} maxLength={10}
+                    placeholder="10-digit mobile number" className={inputClass} />
                 </div>
-                <FieldError msg={phone && validate.phone(phone)} />
               </div>
 
               <div className="grid grid-cols-2 gap-4">

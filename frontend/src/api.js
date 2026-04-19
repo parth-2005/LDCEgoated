@@ -101,11 +101,19 @@ export async function loginUser(aadhaarHash, password) {
 
 // ── AUTH — User registration (aadhaar + name + password) ──────────────────────
 
-export async function registerUser(name, aadhaarHash, password) {
+export async function registerUser(name, email, aadhaarHash, password) {
   const res = await axios.post(`${BASE}/api/auth/register`, {
     name,
+    email,
     aadhaar_hash: aadhaarHash,
     password,
+  })
+  return res.data
+}
+
+export async function verifyMagicLink(token) {
+  const res = await axios.post(`${BASE}/api/auth/verify-magic-link`, {
+    token,
   })
   const data = res.data
   tokenStore.set(data.access_token)
@@ -356,16 +364,18 @@ export async function getEligibleSchemes() {
   return safe(() => client.get('/api/user/eligible-schemes'), { eligible: [] })
 }
 
-export async function getUserAnnouncements() {
-  return safe(() => client.get('/api/user/announcements'), { count: 0, announcements: [] })
+export async function getSchemePreferences() {
+  return safe(() => client.get('/api/user/scheme-preferences'), { opted_in_scheme_ids: [], opted_in_schemes: [], count: 0 })
 }
 
-export async function contactSupport(payload) {
-  return safe(() => client.post('/api/user/support', payload), null)
+export async function optInScheme(schemeId) {
+  const res = await client.post(`/api/user/schemes/${schemeId}/opt-in`)
+  return res.data
 }
 
-export async function getUserSupportTickets() {
-  return safe(() => client.get('/api/user/support'), [])
+export async function optOutScheme(schemeId) {
+  const res = await client.post(`/api/user/schemes/${schemeId}/opt-out`)
+  return res.data
 }
 
 export async function renewKYC() {

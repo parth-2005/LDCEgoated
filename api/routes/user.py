@@ -41,6 +41,31 @@ def _col(name: str):
     return db[name]
 
 
+def _is_scheme_eligible(profile: dict, scheme: dict) -> bool:
+    """Basic eligibility check for user self-service scheme opt-in."""
+    rules = scheme.get("eligibility_rules", {}) or {}
+
+    # Gender check
+    allowed_genders = rules.get("gender")
+    if isinstance(allowed_genders, list) and allowed_genders:
+        if profile.get("gender", "") not in allowed_genders:
+            return False
+
+    # District allowlist check (optional rule)
+    allowed_districts = rules.get("districts")
+    if isinstance(allowed_districts, list) and allowed_districts:
+        if profile.get("district", "") not in allowed_districts:
+            return False
+
+    # Caste/category allowlist check (optional rule)
+    allowed_categories = rules.get("caste_categories") or rules.get("categories")
+    if isinstance(allowed_categories, list) and allowed_categories:
+        if profile.get("caste_category", "") not in allowed_categories:
+            return False
+
+    return True
+
+
 # ── Pydantic models ──────────────────────────────────────────────────────────
 
 class ProfileCompletionRequest(BaseModel):
@@ -98,6 +123,7 @@ async def get_profile(user: dict = Depends(require_role("USER"))):
             "demographics": {"district": "", "taluka": "", "category": ""},
             "bank": {"bank": "", "account_display": "", "ifsc": ""},
             "registered_schemes": [],
+            "opted_in_scheme_ids": [],
             "kyc_profile": {
                 "is_kyc_compliant": False, "days_remaining": 0,
                 "kyc_expiry_date": "", "last_kyc_date": "",
@@ -146,18 +172,9 @@ async def get_profile(user: dict = Depends(require_role("USER"))):
             "dynamic_validity_days": 90,
         }
 
-    # Always recompute days_remaining from expiry date (fixes stale DB values)
-    kyc = doc["kyc_profile"]
-    kyc["dynamic_validity_days"] = 90  # enforce 90-day cycle
-    exp = kyc.get("kyc_expiry_date", "")
-    if exp:
-        try:
-            expiry_dt = datetime.fromisoformat(exp)
-            remaining = (expiry_dt - datetime.utcnow()).days
-            kyc["days_remaining"] = max(0, min(90, remaining))
-            kyc["is_kyc_compliant"] = remaining > 0
-        except (ValueError, TypeError):
-            pass
+    # User-managed scheme preferences
+    if not isinstance(doc.get("opted_in_scheme_ids"), list):
+        doc["opted_in_scheme_ids"] = []
 
     return doc
 
@@ -179,7 +196,13 @@ async def complete_profile(
     if not existing:
         raise HTTPException(404, "User not found")
 
-    # Face photo is optional (user can skip Face ID)
+    if not existing.get("email_verified"):
+        raise HTTPException(status_code=403, detail="Email not verified. Please verify your email first.")
+
+    # Validate face photo (now mandatory)
+    if not body.face_photo:
+        raise HTTPException(status_code=400, detail="Face photo is mandatory for identity verification.")
+
     face_enrolled = False
     secure_url = None
     if body.face_photo:
@@ -416,98 +439,118 @@ async def get_eligible_schemes(user: dict = Depends(require_role("USER"))):
 
     schemes_col = _col("schemes")
     all_schemes = list(schemes_col.find({"status": "ACTIVE"}, {"_id": 0}))
+    opted_in_ids = set(profile.get("opted_in_scheme_ids") or [])
 
-    gender = profile.get("gender", "")
     eligible = []
 
     for s in all_schemes:
-        rules = s.get("eligibility_rules", {})
-        # Gender check
-        allowed_genders = rules.get("gender")
-        if allowed_genders and gender not in allowed_genders:
+        if not _is_scheme_eligible(profile, s):
             continue
-        eligible.append(s)
+        eligible.append({**s, "opted_in": s.get("scheme_id") in opted_in_ids})
 
-    return {"eligible": eligible, "profile": {"gender": gender, "district": profile.get("district"), "caste": profile.get("caste_category")}}
+    return {
+        "eligible": eligible,
+        "profile": {
+            "gender": profile.get("gender"),
+            "district": profile.get("district"),
+            "caste": profile.get("caste_category"),
+        },
+        "opted_in_scheme_ids": list(opted_in_ids),
+    }
 
 
-@router.get("/announcements")
-async def get_user_announcements(user: dict = Depends(require_role("USER"))):
-    """Returns published announcements for authenticated users."""
-    try:
-        col = _col("announcements")
-        docs = list(
-            col.find({"published": True}, {"_id": 0})
-            .sort("created_at", -1)
-            .limit(20)
+@router.get("/scheme-preferences")
+async def get_scheme_preferences(user: dict = Depends(require_role("USER"))):
+    """Returns the user's opted-in scheme IDs and metadata for display."""
+    uid = user["sub"]
+    users_col = _col("users")
+    profile = users_col.find_one({"user_id": uid}, {"_id": 0, "opted_in_scheme_ids": 1})
+    if not profile:
+        raise HTTPException(404, "User not found")
+
+    opted_in_ids = profile.get("opted_in_scheme_ids") or []
+    if not isinstance(opted_in_ids, list):
+        opted_in_ids = []
+
+    scheme_docs = []
+    if opted_in_ids:
+        schemes_col = _col("schemes")
+        scheme_docs = list(
+            schemes_col.find(
+                {"scheme_id": {"$in": opted_in_ids}},
+                {"_id": 0, "scheme_id": 1, "name": 1, "amount": 1, "status": 1},
+            )
         )
-        return {"count": len(docs), "announcements": docs}
-    except Exception:
-        return {"count": 0, "announcements": []}
 
-
-@router.patch("/bank")
-async def update_bank_details(
-    body: BankUpdateRequest,
-    user: dict = Depends(require_role("USER")),
-):
-    """Updates only the bank details for the authenticated user."""
-    uid = user["sub"]
-    col = _col("users")
-
-    # Store in the format expected by the frontend
-    update = {
-        "bank": {
-            "bank_name": body.bank_name.strip(),
-            "account_display": body.account_number.strip()[-4:], # Store last 4 for display
-            "full_account_number": body.account_number.strip(),
-            "ifsc": body.ifsc.strip().upper(),
-        }
+    return {
+        "opted_in_scheme_ids": opted_in_ids,
+        "opted_in_schemes": scheme_docs,
+        "count": len(opted_in_ids),
     }
 
-    result = col.update_one({"user_id": uid}, {"$set": update})
-    if result.matched_count == 0:
-        raise HTTPException(404, "User not found")
 
-    return {"message": "Bank details updated successfully"}
-
-@router.post("/support")
-async def contact_support(
-    body: SupportRequest,
-    user: dict = Depends(require_role("USER")),
-):
-    """Creates a support ticket for the DFO."""
+@router.post("/schemes/{scheme_id}/opt-in")
+async def opt_in_scheme(scheme_id: str, user: dict = Depends(require_role("USER"))):
+    """Opt in to an active scheme if the user meets eligibility rules."""
     uid = user["sub"]
-    db = _get_db()
-    
-    # Fetch user details to get the latest district and name
-    user_doc = db["users"].find_one({"user_id": uid})
-    if not user_doc:
+    users_col = _col("users")
+    schemes_col = _col("schemes")
+
+    profile = users_col.find_one({"user_id": uid}, {"_id": 0, "password_hash": 0})
+    if not profile:
         raise HTTPException(404, "User not found")
-        
-    col = _col("support_tickets")
-    
-    ticket = {
-        "user_id": uid,
-        "user_name": user_doc.get("name"),
-        "district": user_doc.get("district"),
-        "subject": body.subject.strip(),
-        "message": body.message.strip(),
-        "status": "OPEN",
-        "created_at": datetime.utcnow().isoformat()
+    if not profile.get("profile_complete"):
+        raise HTTPException(400, "Complete your profile before opting into schemes")
+
+    scheme = schemes_col.find_one({"scheme_id": scheme_id}, {"_id": 0})
+    if not scheme:
+        raise HTTPException(404, f"Scheme {scheme_id} not found")
+    if scheme.get("status") != "ACTIVE":
+        raise HTTPException(400, f"Scheme {scheme_id} is not active")
+    if not _is_scheme_eligible(profile, scheme):
+        raise HTTPException(403, "You are not eligible for this scheme")
+
+    users_col.update_one(
+        {"user_id": uid},
+        {
+            "$addToSet": {"opted_in_scheme_ids": scheme_id},
+            "$set": {"scheme_preferences_updated_at": datetime.utcnow().isoformat()},
+        },
+    )
+
+    updated = users_col.find_one({"user_id": uid}, {"_id": 0, "opted_in_scheme_ids": 1}) or {}
+    opted_in_ids = updated.get("opted_in_scheme_ids") or []
+
+    return {
+        "message": f"Opted in to {scheme_id}",
+        "scheme_id": scheme_id,
+        "opted_in_scheme_ids": opted_in_ids,
     }
-    
-    col.insert_one(ticket)
-    return {"status": "success"}
 
-@router.get("/support")
-async def get_support_tickets(
-    user: dict = Depends(require_role("USER"))
-):
-    """Retrieves all support tickets for the current user."""
+
+@router.post("/schemes/{scheme_id}/opt-out")
+async def opt_out_scheme(scheme_id: str, user: dict = Depends(require_role("USER"))):
+    """Opt out from a previously opted-in scheme."""
     uid = user["sub"]
-    col = _col("support_tickets")
-    docs = list(col.find({"user_id": uid}).sort("created_at", -1))
-    for d in docs:
-        d["_id"] = str(d["_id"])
-    return docs
+    users_col = _col("users")
+
+    profile = users_col.find_one({"user_id": uid}, {"_id": 0, "opted_in_scheme_ids": 1})
+    if not profile:
+        raise HTTPException(404, "User not found")
+
+    users_col.update_one(
+        {"user_id": uid},
+        {
+            "$pull": {"opted_in_scheme_ids": scheme_id},
+            "$set": {"scheme_preferences_updated_at": datetime.utcnow().isoformat()},
+        },
+    )
+
+    updated = users_col.find_one({"user_id": uid}, {"_id": 0, "opted_in_scheme_ids": 1}) or {}
+    opted_in_ids = updated.get("opted_in_scheme_ids") or []
+
+    return {
+        "message": f"Opted out from {scheme_id}",
+        "scheme_id": scheme_id,
+        "opted_in_scheme_ids": opted_in_ids,
+    }
