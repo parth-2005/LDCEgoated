@@ -37,7 +37,7 @@ def _load_detectors():
 
 def _get_db():
     try:
-        from database import get_db
+        from ..database import get_db
         return get_db()
     except Exception as e:
         print(f"  [analysis] MongoDB unavailable: {e}")

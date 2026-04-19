@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { FileText, CheckCircle, XCircle, RotateCcw, Loader2, ChevronDown, ChevronUp, Sparkles, Clock } from 'lucide-react'
 import { getDFOInstitutionReports, decideDFOReport } from '../../api'
+import { useLanguage } from '../../i18n/LanguageContext'
 
 const STATUS_META = {
   PENDING_DFO_REVIEW: { label: 'Pending Review', color: 'bg-tint-yellow text-yellow-700' },
@@ -10,6 +11,7 @@ const STATUS_META = {
 }
 
 export default function DFOInstitutionReports() {
+  const { t } = useLanguage()
   const [reports, setReports] = useState([])
   const [loading, setLoading] = useState(true)
   const [expanded, setExpanded] = useState(null)
@@ -55,20 +57,20 @@ export default function DFOInstitutionReports() {
         <div>
           <h1 className="text-3xl font-bold text-text-primary tracking-tight flex items-center gap-3">
             <FileText size={28} className="text-primary-override" />
-            Institution Audit Reports
+            {t('institutionReports.title')}
           </h1>
           <p className="text-sm text-text-secondary mt-1 font-data">
-            Reports submitted by Audit Officers — verify, reject, or reassign
+            {t('institutionReports.subtitle')}
           </p>
         </div>
         <div className="flex gap-3">
           <div className="px-4 py-2 bg-tint-yellow rounded-lg border border-border-subtle shadow-sm text-center">
             <p className="text-2xl font-bold text-yellow-700 font-sans">{pending}</p>
-            <p className="text-xs text-yellow-600">Pending</p>
+            <p className="text-xs text-yellow-600">{t('institutionReports.pending')}</p>
           </div>
           <div className="px-4 py-2 bg-surface-lowest rounded-lg border border-border-subtle shadow-sm text-center">
             <p className="text-2xl font-bold text-text-primary font-sans">{reports.length}</p>
-            <p className="text-xs text-text-secondary">Total</p>
+            <p className="text-xs text-text-secondary">{t('institutionReports.total')}</p>
           </div>
         </div>
       </div>
@@ -76,11 +78,11 @@ export default function DFOInstitutionReports() {
       {/* Filter tabs */}
       <div className="flex gap-2 mb-6 flex-wrap">
         {[
-          { key: 'ALL', label: 'All' },
-          { key: 'PENDING_DFO_REVIEW', label: 'Pending' },
-          { key: 'DFO_VERIFIED', label: 'Verified' },
-          { key: 'DFO_REJECTED', label: 'Rejected' },
-          { key: 'DFO_REASSIGN', label: 'Reassigned' },
+          { key: 'ALL', label: t('institutionReports.all') },
+          { key: 'PENDING_DFO_REVIEW', label: t('institutionReports.pending') },
+          { key: 'DFO_VERIFIED', label: t('institutionReports.verified') },
+          { key: 'DFO_REJECTED', label: t('institutionReports.rejected') },
+          { key: 'DFO_REASSIGN', label: t('institutionReports.reassigned') },
         ].map(tab => (
           <button
             key={tab.key}
@@ -106,12 +108,12 @@ export default function DFOInstitutionReports() {
             <FileText size={32} className="text-primary-override" />
           </div>
           <h3 className="text-base font-bold text-text-primary mb-1">
-            {filter === 'ALL' ? 'No Institution Reports Yet' : `No ${filter.replace('DFO_','').toLowerCase()} reports`}
+            {filter === 'ALL' ? t('institutionReports.noReportsYet') : t('institutionReports.noReportsFilter')}
           </h3>
           <p className="text-sm text-text-secondary font-data max-w-sm mx-auto">
             {filter === 'ALL'
-              ? 'Audit Officers will submit institution reports from the Middlemen tab. They will appear here for your review.'
-              : 'No reports match this filter.'}
+              ? t('institutionReports.noReportsDesc')
+              : t('institutionReports.noReportsFilter')}
           </p>
         </div>
       ) : (
@@ -159,13 +161,13 @@ export default function DFOInstitutionReports() {
                     {/* Risk summary */}
                     {report.risk_summary && (
                       <div className="bg-surface-low px-4 py-3 rounded-lg text-xs font-data text-text-secondary">
-                        <span className="font-bold text-text-primary">Risk Summary: </span>{report.risk_summary}
+                        <span className="font-bold text-text-primary">{t('institutionReports.riskSummary')}: </span>{report.risk_summary}
                       </div>
                     )}
 
                     {/* Report text */}
                     <div>
-                      <p className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-2">Audit Report</p>
+                      <p className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-2">{t('institutionReports.auditReport')}</p>
                       <div className="bg-surface-low p-4 rounded-xl text-sm text-text-primary font-data leading-relaxed whitespace-pre-wrap max-h-60 overflow-y-auto">
                         {report.report_text}
                       </div>
@@ -174,7 +176,7 @@ export default function DFOInstitutionReports() {
                     {/* DFO decision form — only for pending */}
                     {isPending ? (
                       <div className="space-y-3 pt-2 border-t border-border-subtle">
-                        <p className="text-xs font-bold text-text-secondary uppercase tracking-widest">Your Decision</p>
+                        <p className="text-xs font-bold text-text-secondary uppercase tracking-widest">{t('institutionReports.yourDecision')}</p>
                         <textarea
                           value={notes[report.report_id] || ''}
                           onChange={e => setNotes(prev => ({ ...prev, [report.report_id]: e.target.value }))}
@@ -189,7 +191,7 @@ export default function DFOInstitutionReports() {
                             className="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold rounded-lg transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                           >
                             {deciding === report.report_id ? <Loader2 size={15} className="animate-spin" /> : <CheckCircle size={15} />}
-                            Verify
+                            {t('institutionReports.verify')}
                           </button>
                           <button
                             onClick={() => handleDecide(report, 'REASSIGN')}
@@ -197,7 +199,7 @@ export default function DFOInstitutionReports() {
                             className="flex-1 py-2.5 bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold rounded-lg transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                           >
                             {deciding === report.report_id ? <Loader2 size={15} className="animate-spin" /> : <RotateCcw size={15} />}
-                            Reassign
+                            {t('institutionReports.reassign')}
                           </button>
                           <button
                             onClick={() => handleDecide(report, 'REJECTED')}
@@ -205,7 +207,7 @@ export default function DFOInstitutionReports() {
                             className="flex-1 py-2.5 bg-red-600 hover:bg-red-700 text-white text-sm font-bold rounded-lg transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                           >
                             {deciding === report.report_id ? <Loader2 size={15} className="animate-spin" /> : <XCircle size={15} />}
-                            Reject
+                            {t('institutionReports.reject')}
                           </button>
                         </div>
                       </div>
@@ -213,7 +215,7 @@ export default function DFOInstitutionReports() {
                       /* Show existing decision */
                       <div className="pt-2 border-t border-border-subtle">
                         <div className={`px-4 py-3 rounded-lg ${meta.color}`}>
-                          <p className="text-xs font-bold uppercase tracking-widest mb-0.5">DFO Decision: {report.dfo_decision}</p>
+                          <p className="text-xs font-bold uppercase tracking-widest mb-0.5">{t('institutionReports.dfoDecision')}: {report.dfo_decision}</p>
                           {report.dfo_notes && <p className="text-xs font-data">{report.dfo_notes}</p>}
                           {report.dfo_decided_at && (
                             <p className="text-xs font-data opacity-75 mt-1">

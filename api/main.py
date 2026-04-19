@@ -35,7 +35,7 @@ from .routes.aadhaar  import router as aadhaar_router
 async def lifespan(app: FastAPI):
     """Seed demo officers into MongoDB on startup (if available)."""
     try:
-        from database import get_db, is_mongo_available
+        from .database import get_db, is_mongo_available
         if is_mongo_available():
             db = get_db()
             from .seed import seed_officers
@@ -87,7 +87,7 @@ app.include_router(aadhaar_router)
 async def health():
     """Public health check — no auth required."""
     try:
-        from database import get_db, is_mongo_available
+        from .database import get_db, is_mongo_available
         mongo_ok = is_mongo_available()
         if mongo_ok:
             db = get_db()
@@ -120,7 +120,7 @@ async def health():
 async def landing_stats():
     """Public homepage KPIs derived from DB; safe fallback when DB is unavailable."""
     try:
-        from database import get_db, is_mongo_available
+        from .database import get_db, is_mongo_available
         mongo_ok = is_mongo_available()
         if not mongo_ok:
             raise RuntimeError("MongoDB unavailable")

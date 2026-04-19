@@ -6,95 +6,95 @@ import LanguageToggle from './LanguageToggle'
 import { useLanguage } from '../i18n/LanguageContext'
 
 const DFO_NAV = [
-  { path: '/dfo/dashboard',            label: 'Overview',            labelKey: 'sidebar.overview',         icon: LayoutDashboard },
-  { path: '/dfo/queue',                label: 'Investigation Queue', labelKey: 'sidebar.investigationQueue', icon: List },
-  { path: '/dfo/institution-reports',  label: 'Audit Reports',       labelKey: 'sidebar.auditReports',      icon: FileText },
-  { path: '/dfo/flagged-institutions', label: 'Flagged Institutions',labelKey: 'sidebar.flaggedInstitutions', icon: AlertTriangle },
-  { path: '/dfo/complaints',           label: 'Public Complaints',   labelKey: 'sidebar.complaints',         icon: MessageSquare },
+  { path: '/dfo/dashboard', label: 'Overview', labelKey: 'sidebar.overview', icon: LayoutDashboard },
+  { path: '/dfo/queue', label: 'Investigation Queue', labelKey: 'sidebar.investigationQueue', icon: List },
+  { path: '/dfo/institution-reports', label: 'Audit Reports', labelKey: 'sidebar.auditReports', icon: FileText },
+  { path: '/dfo/flagged-institutions', label: 'Flagged Institutions', labelKey: 'sidebar.flaggedInstitutions', icon: AlertTriangle },
+  { path: '/dfo/complaints', label: 'Public Complaints', labelKey: 'sidebar.complaints', icon: MessageSquare },
 ]
 
 const ADMIN_NAV = [
-  { path: '/admin/gujarat-map',      label: 'Gujarat Heatmap',  labelKey: 'sidebar.gujaratHeatmap',  icon: Map },
-  { path: '/admin/district-overview',label: 'District Overview', labelKey: 'sidebar.districtOverview', icon: BarChart3 },
-  { path: '/admin/rules-engine',     label: 'Rules Engine',     labelKey: 'sidebar.rulesEngine',     icon: BookOpen },
-  { path: '/admin/announcements',    label: 'Announcements',    icon: Megaphone },
+  { path: '/admin/gujarat-map', label: 'Gujarat Heatmap', labelKey: 'sidebar.gujaratHeatmap', icon: Map },
+  { path: '/admin/district-overview', label: 'District Overview', labelKey: 'sidebar.districtOverview', icon: BarChart3 },
+  { path: '/admin/rules-engine', label: 'Rules Engine', labelKey: 'sidebar.rulesEngine', icon: BookOpen },
+  { path: '/admin/announcements', label: 'Announcements', icon: Megaphone },
 ]
 
 const AUDIT_NAV = [
-  { path: '/audit/overview',       label: 'Overview',          labelKey: 'sidebar.overview',        icon: LayoutDashboard },
-  { path: '/audit/middlemen', label: 'Middlemen',  labelKey: 'sidebar.middlemen', icon: List },
-  { path: '/audit/report',         label: 'Generate Report',   labelKey: 'sidebar.generateReport',  icon: FileText },
+  { path: '/audit/overview', label: 'Overview', labelKey: 'sidebar.overview', icon: LayoutDashboard },
+  { path: '/audit/middlemen', label: 'Middlemen', labelKey: 'sidebar.middlemen', icon: List },
+  { path: '/audit/report', label: 'Generate Report', labelKey: 'sidebar.generateReport', icon: FileText },
 ]
 
 const VERIFIER_NAV = [
-  { path: '/verifier/my-cases',    label: 'My Open Cases',     labelKey: 'sidebar.myOpenCases',     icon: List },
-  { path: '/verifier/closed',      label: 'Closed Cases',      labelKey: 'sidebar.closedCases',     icon: CheckCircle },
+  { path: '/verifier/my-cases', label: 'My Open Cases', labelKey: 'sidebar.myOpenCases', icon: List },
+  { path: '/verifier/closed', label: 'Closed Cases', labelKey: 'sidebar.closedCases', icon: CheckCircle },
 ]
 
 const USER_NAV = [
-  { path: '/user/dashboard',      label: 'My Dashboard',      labelKey: 'sidebar.myDashboard',     icon: LayoutDashboard },
-  { path: '/user/profile',        label: 'My Profile',        icon: UserCircle },
+  { path: '/user/dashboard', label: 'My Dashboard', labelKey: 'sidebar.myDashboard', icon: LayoutDashboard },
+  { path: '/user/profile', label: 'My Profile', icon: UserCircle },
 ]
 
 const NAV_BY_ROLE = {
-  DFO:             DFO_NAV,
-  STATE_ADMIN:     ADMIN_NAV,
-  AUDIT_OFFICER:   AUDIT_NAV,
+  DFO: DFO_NAV,
+  STATE_ADMIN: ADMIN_NAV,
+  AUDIT_OFFICER: AUDIT_NAV,
   SCHEME_VERIFIER: VERIFIER_NAV,
-  USER:            USER_NAV,
+  USER: USER_NAV,
 }
 
 const SIDEBAR_BG = {
-  DFO:             'bg-[#121a2f]',
-  STATE_ADMIN:     'bg-shell',
-  AUDIT_OFFICER:   'bg-shell',
+  DFO: 'bg-[#121a2f]',
+  STATE_ADMIN: 'bg-shell',
+  AUDIT_OFFICER: 'bg-shell',
   SCHEME_VERIFIER: 'bg-shell',
-  USER:            'bg-shell',
+  USER: 'bg-shell',
 }
 
 const ACTIVE_CLASS = {
-  DFO:             'bg-white/10 text-white',
-  STATE_ADMIN:     'bg-white/10 text-white',
-  AUDIT_OFFICER:   'bg-white/10 text-white',
+  DFO: 'bg-white/10 text-white',
+  STATE_ADMIN: 'bg-white/10 text-white',
+  AUDIT_OFFICER: 'bg-white/10 text-white',
   SCHEME_VERIFIER: 'bg-white/10 text-white',
-  USER:            'bg-white/10 text-white',
+  USER: 'bg-white/10 text-white',
 }
 
 export default function Sidebar({ role, officer, onLogout }) {
   const location = useLocation()
   const navigate = useNavigate()
   const { t } = useLanguage()
-  const navItems    = NAV_BY_ROLE[role] || DFO_NAV
-  const sidebarBg   = SIDEBAR_BG[role]   || 'bg-[#121a2f]'
-  const activeClass = ACTIVE_CLASS[role]  || 'bg-white/10 text-white'
+  const navItems = NAV_BY_ROLE[role] || DFO_NAV
+  const sidebarBg = SIDEBAR_BG[role] || 'bg-[#121a2f]'
+  const activeClass = ACTIVE_CLASS[role] || 'bg-white/10 text-white'
 
   const [width, setWidth] = useState(256)
 
   const startResizing = useCallback((e) => {
     e.preventDefault()
-    
+
     const handleMouseMove = (moveEvent) => {
       setWidth(Math.min(Math.max(200, moveEvent.clientX), 480))
     }
-    
+
     const handleMouseUp = () => {
       document.removeEventListener('mousemove', handleMouseMove)
       document.removeEventListener('mouseup', handleMouseUp)
       document.body.style.cursor = 'default'
     }
-    
+
     document.addEventListener('mousemove', handleMouseMove)
     document.addEventListener('mouseup', handleMouseUp)
     document.body.style.cursor = 'col-resize'
   }, [])
 
   return (
-    <aside 
+    <aside
       style={{ width: `${width}px` }}
       className={`shrink-0 ${sidebarBg} text-white flex flex-col shadow-2xl z-10 relative border-r border-border-subtle`}
     >
       {/* Resizer Handle */}
-      <div 
+      <div
         onMouseDown={startResizing}
         className="absolute top-0 -right-1.5 w-3 h-full cursor-col-resize hover:bg-blue-500/20 z-50 transition-colors"
       />
@@ -130,7 +130,7 @@ export default function Sidebar({ role, officer, onLogout }) {
       {/* Navigation */}
       <nav className="flex-1 px-3 space-y-1 overflow-y-auto mt-2">
         {navItems.map(item => {
-          const Icon   = item.icon
+          const Icon = item.icon
           const active = location.pathname === item.path || location.pathname.startsWith(item.path + '/')
           return (
             <button

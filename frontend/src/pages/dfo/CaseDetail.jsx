@@ -188,7 +188,7 @@ export default function CaseDetail() {
     <div className="flex flex-col items-center justify-center min-h-screen bg-surface-low gap-4">
       <ShieldAlert size={48} className="text-red-500" />
       <span className="text-text-secondary font-bold text-xl">{t('caseDetail.caseNotFound')}</span>
-      <button onClick={() => navigate('/dfo/queue')} className="text-primary-override font-bold hover:underline">Back to Queue</button>
+      <button onClick={() => navigate('/dfo/queue')} className="text-primary-override font-bold hover:underline">{t('caseDetailExt.backToQueue')}</button>
     </div>
   )
 
@@ -213,12 +213,12 @@ export default function CaseDetail() {
             >
               <ArrowLeft size={20} />
             </button>
-            <h1 className="text-lg font-bold text-text-primary">EduGuard Case Management</h1>
+            <h1 className="text-lg font-bold text-text-primary">{t('caseDetailExt.caseManagement')}</h1>
           </div>
           <div className="flex items-center gap-2 text-xs font-bold text-text-secondary uppercase tracking-widest">
-            <span>District Dashboard</span>
+            <span>{t('caseDetailExt.districtDashboard')}</span>
             <ChevronRight size={12} />
-            <span className="text-primary-override">Case Detail</span>
+            <span className="text-primary-override">{t('caseDetailExt.caseDetail')}</span>
           </div>
         </div>
       </div>
@@ -228,7 +228,7 @@ export default function CaseDetail() {
         {/* --- CASE HEADER --- */}
         <section className="bg-surface-lowest rounded-2xl shadow-sm border border-border-subtle p-8">
           <div className="flex flex-col gap-1">
-            <span className="text-[10px] font-bold text-text-secondary uppercase tracking-[0.2em]">Case Header</span>
+            <span className="text-[10px] font-bold text-text-secondary uppercase tracking-[0.2em]">{t('caseDetailExt.caseHeader')}</span>
             
             <div className="flex flex-wrap items-center gap-4 mb-2">
               <h2 className="text-3xl font-extrabold text-[#1e293b] tracking-tight">
@@ -238,7 +238,7 @@ export default function CaseDetail() {
                 <LeakageBadge type={flag.leakage_type} />
                 {flag.risk_label === 'CRITICAL' && (
                   <span className="px-3 py-1 bg-red-50 text-red-600 text-[10px] font-black uppercase tracking-wider rounded-full border border-red-100">
-                    Critical Intervention
+                    {t('caseDetailExt.criticalIntervention')}
                   </span>
                 )}
               </div>
@@ -250,9 +250,9 @@ export default function CaseDetail() {
                 <span>{flag.district} · {flag.taluka || 'NLY'}</span>
               </div>
               <div className="w-1.5 h-1.5 rounded-full bg-slate-300 hidden sm:block"></div>
-              <div>Flag ID: <span className="text-text-primary font-bold">{flag.flag_id}</span></div>
+              <div>{t('caseDetailExt.flagId')}: <span className="text-text-primary font-bold">{flag.flag_id}</span></div>
               <div className="w-1.5 h-1.5 rounded-full bg-slate-300 hidden sm:block"></div>
-              <div>Status: <span className={`font-bold ${flag.status === 'OPEN' ? 'text-blue-600' : 'text-text-primary'}`}>{flag.status || 'OPEN'}</span></div>
+              <div>{t('caseDetailExt.status')}: <span className={`font-bold ${flag.status === 'OPEN' ? 'text-blue-600' : 'text-text-primary'}`}>{flag.status || 'OPEN'}</span></div>
             </div>
           </div>
         </section>
@@ -266,19 +266,19 @@ export default function CaseDetail() {
             {/* EVIDENCE DOSSIER */}
             <div className="bg-surface-lowest rounded-2xl shadow-sm border border-border-subtle overflow-hidden">
               <div className="bg-[#0f172a] px-6 py-4 flex items-center justify-between">
-                <h3 className="text-white font-bold text-sm tracking-wide">Case Evidence</h3>
+                <h3 className="text-white font-bold text-sm tracking-wide">{t('caseDetailExt.caseEvidence')}</h3>
                 <button
                   onClick={handleGenerateAIEvidence}
                   disabled={aiLoading || evidenceSource === 'ai'}
                   className="bg-surface-lowest text-[#0f172a] px-4 py-1.5 rounded-lg text-xs font-bold hover:bg-surface transition-all disabled:opacity-50 flex items-center gap-2"
                 >
                   {aiLoading ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
-                  {aiLoading ? 'Analyzing...' : 'Generate AI Evidence'}
+                  {aiLoading ? t('caseDetailExt.analyzing') : t('caseDetailExt.generateAIEvidence')}
                 </button>
               </div>
               <div className="p-8">
                 <div className="mb-8">
-                  <h4 className="text-[10px] font-black text-text-secondary uppercase tracking-widest mb-4">Evidence Summary</h4>
+                  <h4 className="text-[10px] font-black text-text-secondary uppercase tracking-widest mb-4">{t('caseDetailExt.evidenceSummary')}</h4>
                   <ul className="space-y-4">
                     {evidenceBullets.map((bullet, idx) => (
                       <li key={idx} className="flex items-start gap-3">
@@ -290,13 +290,13 @@ export default function CaseDetail() {
                 </div>
                 
                 <div>
-                  <h4 className="text-[10px] font-black text-text-secondary uppercase tracking-widest mb-4">Data Sources</h4>
+                  <h4 className="text-[10px] font-black text-text-secondary uppercase tracking-widest mb-4">{t('caseDetailExt.dataSources')}</h4>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     {[
-                      { icon: CreditCard, label: 'Payment Ledger', color: 'bg-blue-50 text-blue-600' },
-                      { icon: User, label: 'Death Registry', color: 'bg-red-50 text-red-600' },
-                      { icon: Landmark, label: 'U-DISE', color: 'bg-indigo-50 text-indigo-600' },
-                      { icon: Fingerprint, label: 'Aadhaar Registry', color: 'bg-orange-50 text-orange-600' },
+                      { icon: CreditCard, label: t('caseDetailExt.paymentLedger'), color: 'bg-blue-50 text-blue-600' },
+                      { icon: User, label: t('caseDetailExt.deathRegistry'), color: 'bg-red-50 text-red-600' },
+                      { icon: Landmark, label: t('caseDetailExt.udise'), color: 'bg-indigo-50 text-indigo-600' },
+                      { icon: Fingerprint, label: t('caseDetailExt.aadhaarRegistry'), color: 'bg-orange-50 text-orange-600' },
                     ].map((source, idx) => (
                       <div key={idx} className="flex flex-col items-center gap-2 p-4 rounded-xl border border-border-subtle hover:border-border-subtle transition-colors group">
                         <div className={`p-2 rounded-lg ${source.color} transition-transform group-hover:scale-110`}>
@@ -312,14 +312,14 @@ export default function CaseDetail() {
 
             {/* DATA RECORDS (NEW POSITION & STYLE) */}
             <div className="bg-surface-lowest rounded-2xl shadow-sm border border-border-subtle p-8">
-              <h3 className="text-[10px] font-black text-text-secondary uppercase tracking-widest mb-6">Data Records</h3>
+              <h3 className="text-[10px] font-black text-text-secondary uppercase tracking-widest mb-6">{t('caseDetailExt.dataRecords')}</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="bg-blue-50/50 p-6 rounded-xl border border-blue-100/50">
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-text-secondary block mb-2">Payment Amount</span>
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-text-secondary block mb-2">{t('caseDetailExt.paymentAmount')}</span>
                   <div className="text-2xl font-black text-text-primary tracking-tight">₹{flag.payment_amount?.toLocaleString('en-IN') || 0}</div>
                 </div>
                 <div className="bg-blue-50/50 p-6 rounded-xl border border-blue-100/50">
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-text-secondary block mb-2">Disbursement Date</span>
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-text-secondary block mb-2">{t('caseDetailExt.disbursementDate')}</span>
                   <div className="text-2xl font-black text-text-primary tracking-tight">{flag.payment_date || '2024-08-25'}</div>
                 </div>
               </div>
@@ -331,10 +331,10 @@ export default function CaseDetail() {
           <div className="lg:col-span-3 space-y-6">
 
             <div className="bg-surface/80 rounded-2xl border border-border-subtle p-6">
-              <h3 className="text-[10px] font-black text-text-secondary uppercase tracking-widest mb-4">Action Panel</h3>
+              <h3 className="text-[10px] font-black text-text-secondary uppercase tracking-widest mb-4">{t('caseDetailExt.actionPanel')}</h3>
               
               <div className="bg-surface-lowest rounded-xl p-4 shadow-sm border border-border-subtle mb-6 flex flex-col items-center">
-                <h4 className="text-[10px] font-black text-text-secondary uppercase tracking-widest mb-2">Risk Assessment</h4>
+                <h4 className="text-[10px] font-black text-text-secondary uppercase tracking-widest mb-2">{t('caseDetailExt.riskAssessment')}</h4>
                 <RiskGauge score={flag.risk_score} label={flag.risk_label} />
               </div>
 
@@ -342,7 +342,7 @@ export default function CaseDetail() {
                 <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-5 mb-6">
                   <div className="flex items-center gap-2 mb-2">
                     <Check size={18} className="text-emerald-600" />
-                    <span className="text-sm font-bold text-emerald-800">Assigned to Verifier</span>
+                    <span className="text-sm font-bold text-emerald-800">{t('caseDetailExt.assignedToVerifier')}</span>
                   </div>
                   <div className="space-y-1">
                     <p className="text-xs text-emerald-700/80 font-medium">ID: {flag.assigned_verifier_id || '—'}</p>
@@ -354,14 +354,14 @@ export default function CaseDetail() {
                   onClick={openAssignModal}
                   className="w-full bg-[#f97316] hover:bg-[#ea580c] text-white py-4 rounded-xl font-bold text-sm shadow-md shadow-orange-500/20 transition-all active:scale-[0.98] mb-6 flex items-center justify-center gap-2"
                 >
-                  <UserPlus size={18} /> Assign to Scheme Verifier
+                  <UserPlus size={18} /> {t('caseDetailExt.assignToVerifier')}
                 </button>
               )}
 
               <div className="bg-blue-50/50 border border-blue-100 rounded-xl p-5 mb-6">
                 <div className="flex items-center gap-2 mb-3">
                   <Info size={16} className="text-blue-600" />
-                  <h4 className="text-[10px] font-black text-blue-800 uppercase tracking-widest">Recommended Action</h4>
+                  <h4 className="text-[10px] font-black text-blue-800 uppercase tracking-widest">{t('caseDetail.recommendedAction')}</h4>
                 </div>
                 <p className="text-sm text-text-secondary leading-relaxed font-medium">
                   {flag.recommended_action || "Freeze payment immediately. Initiate recovery proceedings. Refer to District Collector."}
@@ -370,17 +370,17 @@ export default function CaseDetail() {
 
               <div className="space-y-4">
                 <div>
-                  <h4 className="text-[10px] font-black text-text-secondary uppercase tracking-widest mb-2 px-1">Status Management</h4>
+                  <h4 className="text-[10px] font-black text-text-secondary uppercase tracking-widest mb-2 px-1">{t('caseDetail.statusManagement')}</h4>
                   <div className="relative">
                     <select 
                       value={selectedStatus} 
                       onChange={(e) => setSelectedStatus(e.target.value)}
                       className="w-full appearance-none bg-surface-lowest border border-border-subtle text-text-primary text-sm font-bold rounded-xl px-4 py-3.5 outline-none focus:ring-2 focus:ring-primary-override/20 focus:border-primary-override transition-all"
                     >
-                      <option value="OPEN">OPEN - Pending Review</option>
-                      <option value="ASSIGNED">ASSIGNED - Field Investigation</option>
-                      <option value="ASSIGNED_TO_VERIFIER">ASSIGNED TO VERIFIER</option>
-                      <option value="RESOLVED">RESOLVED - Case Closed</option>
+                      <option value="OPEN">{t('caseDetail.openPending')}</option>
+                      <option value="ASSIGNED">{t('caseDetail.assignedField')}</option>
+                      <option value="ASSIGNED_TO_VERIFIER">{t('caseDetailExt.assignedToVerifier')}</option>
+                      <option value="RESOLVED">{t('caseDetail.resolvedClosed')}</option>
                     </select>
                     <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-text-secondary">
                       <ChevronRight size={16} className="rotate-90" />
@@ -394,7 +394,7 @@ export default function CaseDetail() {
                   className="w-full bg-slate-800 hover:bg-slate-900 text-white py-3.5 rounded-xl font-bold text-sm shadow-lg shadow-slate-200 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
                 >
                   {saving ? <Loader2 size={18} className="animate-spin" /> : saved ? <Check size={18} /> : null}
-                  {saving ? 'Saving...' : saved ? 'Changes Saved!' : 'Save Changes'}
+                  {saving ? t('common.loading') : saved ? t('common.done') : t('caseDetail.saveChanges')}
                 </button>
               </div>
             </div>
@@ -413,7 +413,7 @@ export default function CaseDetail() {
             {/* Modal header */}
             <div className="px-8 py-6 border-b border-border-subtle bg-surface-low/50 flex items-center justify-between">
               <div>
-                <h2 className="text-xl font-bold text-text-primary">Assign to Scheme Verifier</h2>
+                <h2 className="text-xl font-bold text-text-primary">{t('caseDetailExt.assignToVerifier')}</h2>
                 <p className="text-xs text-text-secondary font-bold uppercase tracking-widest mt-1">
                   Case {flagId} · District Officers
                 </p>
@@ -430,7 +430,7 @@ export default function CaseDetail() {
                   <div className="w-20 h-20 rounded-3xl bg-emerald-50 flex items-center justify-center mx-auto mb-6 shadow-sm">
                     <Check size={40} className="text-emerald-600" />
                   </div>
-                  <h3 className="text-2xl font-bold text-text-primary mb-2">Successfully Assigned</h3>
+                  <h3 className="text-2xl font-bold text-text-primary mb-2">{t('assignModal.assignedSuccess')}</h3>
                   <p className="text-text-secondary font-medium">
                     The case has been forwarded to <span className="text-text-primary font-bold">{assignSuccess.name}</span>
                   </p>
@@ -538,7 +538,7 @@ export default function CaseDetail() {
                   onClick={() => setShowAIModal(false)}
                   className="flex-1 bg-slate-800 hover:bg-slate-900 text-white py-4 rounded-2xl font-bold text-sm transition-all active:scale-[0.98] shadow-xl shadow-slate-200"
                 >
-                  Confirm & Dismiss
+                  {t('common.done')}
                 </button>
               </div>
             </div>

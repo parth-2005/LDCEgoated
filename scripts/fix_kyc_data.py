@@ -1,4 +1,4 @@
-from database import get_db
+from api.database import get_db
 from datetime import datetime, timedelta
 
 def fix_kyc():

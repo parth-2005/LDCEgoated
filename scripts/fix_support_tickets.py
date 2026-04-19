@@ -1,4 +1,4 @@
-from database import get_db
+from api.database import get_db
 
 def fix_support_tickets():
     db = get_db()

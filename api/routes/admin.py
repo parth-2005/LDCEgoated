@@ -34,7 +34,7 @@ def _load_json(filename: str, default=None):
 
 def _get_db():
     try:
-        from database import get_db
+        from ..database import get_db
         return get_db()
     except Exception as e:
         print(f"  [admin] MongoDB unavailable: {e}")

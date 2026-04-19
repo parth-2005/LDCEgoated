@@ -28,7 +28,7 @@ router = APIRouter(prefix="/api/user", tags=["user"])
 
 def _get_db():
     try:
-        from database import get_db
+        from ..database import get_db
         return get_db()
     except Exception as e:
         raise HTTPException(status_code=503, detail=f"Database unavailable: {e}")

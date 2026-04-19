@@ -86,8 +86,8 @@ export default function Dashboard() {
     <div className="p-4 sm:p-8 pb-20 bg-workspace min-h-screen">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-[24px] sm:text-[28px] font-bold font-sans text-text-primary tracking-tight">Intelligence Ledger</h1>
-          <p className="text-sm text-text-secondary mt-1 font-sans">Education Scheme Anomaly Detection — AY 2024–25</p>
+          <h1 className="text-[24px] sm:text-[28px] font-bold font-sans text-text-primary tracking-tight">{t('dashboard.title')}</h1>
+          <p className="text-sm text-text-secondary mt-1 font-sans">{t('dashboard.subtitle')}</p>
         </div>
         <button
           onClick={runAnalysis}
@@ -95,7 +95,7 @@ export default function Dashboard() {
           className="flex items-center gap-2 px-5 py-2.5 bg-primary-override text-white dark:text-shell dark:text-shell text-sm font-semibold rounded-lg shadow-sm hover:shadow disabled:opacity-70 transition-all font-sans w-full sm:w-auto justify-center"
         >
           {loading ? <RefreshCw size={16} className="animate-spin" /> : null}
-          {loading ? `Running... ${elapsed}s` : 'Run Analysis'}
+          {loading ? `${t('dashboard.scanning')} ${elapsed}s` : t('dashboard.runAnalysis')}
         </button>
       </div>
 
@@ -128,7 +128,7 @@ export default function Dashboard() {
           {/* Card 1 */}
           <div className="bg-surface-lowest p-5 rounded-xl border border-border-subtle shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] flex flex-col justify-between">
             <div className="flex justify-between items-start mb-2">
-              <p className="text-[11px] text-text-secondary font-sans font-bold uppercase tracking-wider">TRANSACTIONS ANALYSED</p>
+              <p className="text-[11px] text-text-secondary font-sans font-bold uppercase tracking-wider">{t('dashboard.transactionsAnalysed')}</p>
             </div>
             <div className="flex items-end justify-between mb-4">
               <span className="text-3xl font-sans font-bold text-text-primary tracking-tight">10,306</span>
@@ -148,7 +148,7 @@ export default function Dashboard() {
           {/* Card 2 */}
           <div className="bg-surface-lowest p-5 rounded-xl border border-border-subtle shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] flex flex-col justify-between">
             <div className="flex justify-between items-start mb-2">
-              <p className="text-[11px] text-text-secondary font-sans font-bold uppercase tracking-wider">FLAGS RAISED</p>
+              <p className="text-[11px] text-text-secondary font-sans font-bold uppercase tracking-wider">{t('dashboard.flagsRaised')}</p>
             </div>
             <div className="flex items-end justify-between mb-4">
               <span className="text-3xl font-sans font-bold text-text-primary tracking-tight">8</span>
@@ -168,7 +168,7 @@ export default function Dashboard() {
           {/* Card 3 */}
           <div className="bg-surface-lowest p-5 rounded-xl border border-border-subtle shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] flex flex-col justify-between">
             <div className="flex justify-between items-start mb-2">
-              <p className="text-[11px] text-text-secondary font-sans font-bold uppercase tracking-wider">AMOUNT AT RISK</p>
+              <p className="text-[11px] text-text-secondary font-sans font-bold uppercase tracking-wider">{t('dashboard.amountAtRisk')}</p>
             </div>
             <div className="flex items-end justify-between mb-4">
               <span className="text-3xl font-sans font-bold text-text-primary tracking-tight">₹1.5L</span>
@@ -188,7 +188,7 @@ export default function Dashboard() {
           {/* Card 4 */}
           <div className="bg-surface-lowest p-5 rounded-xl border border-border-subtle shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] flex flex-col justify-between">
             <div className="flex justify-between items-start mb-2">
-              <p className="text-[11px] text-text-secondary font-sans font-bold uppercase tracking-wider">CRITICAL CASES</p>
+              <p className="text-[11px] text-text-secondary font-sans font-bold uppercase tracking-wider">{t('dashboard.criticalCases')}</p>
             </div>
             <div className="flex items-end justify-between mb-4">
               <span className="text-3xl font-sans font-bold text-text-primary tracking-tight">4</span>
@@ -211,7 +211,7 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
           {/* Donut Chart */}
           <div className="bg-surface-lowest p-6 rounded-xl border border-border-subtle shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] lg:col-span-1">
-            <h2 className="text-xs font-bold mb-4 text-text-secondary uppercase tracking-widest font-sans">FLAGS BY TYPE</h2>
+            <h2 className="text-xs font-bold mb-4 text-text-secondary uppercase tracking-widest font-sans">{t('dashboard.flagsByType')}</h2>
             <div className="h-48 relative">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -244,7 +244,7 @@ export default function Dashboard() {
 
           {/* Critical Flags List */}
           <div className="bg-surface-lowest p-6 rounded-xl border border-border-subtle shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] lg:col-span-2">
-            <h2 className="text-xs font-bold mb-4 text-text-secondary uppercase tracking-widest font-sans">CRITICAL FLAGS — PRIORITY ACTION</h2>
+            <h2 className="text-xs font-bold mb-4 text-text-secondary uppercase tracking-widest font-sans">{t('dashboard.criticalFlags')}</h2>
             <div className="flex flex-col gap-3">
               {criticalFlags.map((flag, idx) => (
                 <div key={flag.flag_id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between py-3 border-b border-border-subtle last:border-0 hover:bg-surface-low transition-colors gap-3 sm:gap-0">
@@ -254,7 +254,7 @@ export default function Dashboard() {
                     </div>
                     <div>
                       <p className="text-sm font-bold font-sans text-text-primary">{flag.beneficiary_name}</p>
-                      <p className="text-xs text-text-secondary font-sans mt-0.5">{flag.district} · {flag.leakage_type.replace('_', ' ')} Beneficiary</p>
+                      <p className="text-xs text-text-secondary font-sans mt-0.5">{flag.district} · {t(`anomalyLabels.${flag.leakage_type}`) || flag.leakage_type.replace('_', ' ')}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-4 sm:gap-6 w-full sm:w-auto justify-between sm:justify-end">
@@ -262,12 +262,12 @@ export default function Dashboard() {
                       {idx % 2 === 0 ? 'High Priority tag' : 'Critical'}
                     </span>
                     <span className="text-sm font-sans font-bold text-text-primary w-auto sm:w-20 text-right">₹{flag.payment_amount?.toLocaleString('en-IN')}</span>
-                    <button onClick={() => navigate(`/dfo/case/${flag.flag_id}`)} className="text-xs font-sans font-semibold text-text-secondary bg-surface-lowest shadow-sm border border-border-subtle px-4 py-1.5 rounded-md hover:bg-surface-low transition-colors shrink-0">Review</button>
+                    <button onClick={() => navigate(`/dfo/case/${flag.flag_id}`)} className="text-xs font-sans font-semibold text-text-secondary bg-surface-lowest shadow-sm border border-border-subtle px-4 py-1.5 rounded-md hover:bg-surface-low transition-colors shrink-0">{t('common.review')}</button>
                   </div>
                 </div>
               ))}
               {criticalFlags.length === 0 && (
-                <p className="text-sm text-text-secondary font-sans p-4 text-center mt-8">No critical cases found.</p>
+                <p className="text-sm text-text-secondary font-sans p-4 text-center mt-8">{t('dashboard.noCritical')}</p>
               )}
             </div>
           </div>

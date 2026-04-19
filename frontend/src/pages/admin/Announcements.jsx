@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
 import { Megaphone, Loader2, Send, RefreshCw } from 'lucide-react'
 import { createAdminAnnouncement, getAdminAnnouncements } from '../../api'
+import { useLanguage } from '../../i18n/LanguageContext'
 
 const TAGS = ['NEW', 'UPDATE', 'REMINDER']
 
 export default function Announcements() {
+  const { t } = useLanguage()
   const [title, setTitle] = useState('')
   const [body, setBody] = useState('')
   const [tag, setTag] = useState('UPDATE')
@@ -61,9 +63,9 @@ export default function Announcements() {
         <div>
           <h1 className="text-3xl font-bold text-text-primary tracking-tight flex items-center gap-3">
             <Megaphone size={26} className="text-primary-override" />
-            State Announcements
+            {t('announcements.title')}
           </h1>
-          <p className="text-sm text-text-secondary mt-1 font-data">Publish announcements visible in user profiles.</p>
+          <p className="text-sm text-text-secondary mt-1 font-data">{t('announcements.subtitle')}</p>
         </div>
         <button
           onClick={loadAnnouncements}
@@ -79,7 +81,7 @@ export default function Announcements() {
 
         <div className="grid md:grid-cols-3 gap-4">
           <div className="md:col-span-2">
-            <label className="block text-xs font-bold text-text-secondary uppercase tracking-wider mb-1">Title</label>
+            <label className="block text-xs font-bold text-text-secondary uppercase tracking-wider mb-1">{t('announcements.titleField')}</label>
             <input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
@@ -88,7 +90,7 @@ export default function Announcements() {
             />
           </div>
           <div>
-            <label className="block text-xs font-bold text-text-secondary uppercase tracking-wider mb-1">Tag</label>
+            <label className="block text-xs font-bold text-text-secondary uppercase tracking-wider mb-1">{t('announcements.tag')}</label>
             <select
               value={tag}
               onChange={(e) => setTag(e.target.value)}
@@ -102,7 +104,7 @@ export default function Announcements() {
         </div>
 
         <div>
-          <label className="block text-xs font-bold text-text-secondary uppercase tracking-wider mb-1">Message</label>
+          <label className="block text-xs font-bold text-text-secondary uppercase tracking-wider mb-1">{t('announcements.bodyField')}</label>
           <textarea
             value={body}
             onChange={(e) => setBody(e.target.value)}
@@ -118,13 +120,13 @@ export default function Announcements() {
           className="px-5 py-2.5 rounded-lg bg-primary-override text-white dark:text-shell font-bold text-sm hover:brightness-110 transition flex items-center gap-2 disabled:opacity-60"
         >
           {saving ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
-          Publish Announcement
+          {t('announcements.publish')}
         </button>
       </form>
 
       <div className="bg-surface-lowest border border-border-subtle rounded-2xl shadow-sm overflow-hidden">
         <div className="px-6 py-4 border-b border-border-subtle">
-          <h2 className="font-bold text-text-primary">Published Announcements</h2>
+          <h2 className="font-bold text-text-primary">{t('announcements.title')}</h2>
         </div>
 
         {loading ? (
@@ -133,7 +135,7 @@ export default function Announcements() {
             Loading announcements...
           </div>
         ) : items.length === 0 ? (
-          <div className="p-8 text-sm text-text-secondary font-data">No announcements yet.</div>
+          <div className="p-8 text-sm text-text-secondary font-data">{t('announcements.noAnnouncements')}</div>
         ) : (
           <div className="divide-y divide-border-subtle">
             {items.map((a) => (
